@@ -6,6 +6,7 @@ using System.Web.Mvc;
 
 namespace ELibrary.Controllers
 {
+    //this is the home elibrary where the books will show
     public class HomeController : Controller
     {
         public ActionResult Index()
