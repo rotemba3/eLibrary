@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="~\Content\NevBar.css" /> <!-- הוספת קובץ CSS -->
+    <link rel="stylesheet" href="~\Content\NavBar.css" /> <!-- הוספת קובץ CSS -->
     <title>@ViewBag.Title ELibrary</title>
-    @Styles.Render("~/Content/NevBar.css")
+    @Styles.Render("~/Content/NavBar.css")
 </head>
 <body>
     <nav class="navbar navbar-expand-sm">
@@ -14,7 +14,7 @@
             <button class="search-button">🔍</button>
         </div>
         <ul class="nav-links">
-            <li>@Html.ActionLink("Home", "HomePage", "MainLibrary", new { area = "" }, new { @class = "nav-link" })</li>
+            <li>@Html.ActionLink("Library", "Library", "MainLibrary", new { area = "" }, new { @class = "nav-link" })</li>
             <!--<li>@Html.ActionLink("About", "About", "Profile", new { area = "" }, new { @class = "nav-link" })</li>
             <li>@Html.ActionLink("Profile", "UserProfile", "Profile", new { area = "" }, new { @class = "nav-link" })</li> -->
         </ul>

@@ -1,0 +1,43 @@
+﻿@model ELibrary.Models.Books;
+
+@{
+    ViewBag.Title = "Library";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Library</title>
+</head>
+<body>
+    <div class="introduction">
+        <h1>Welcome to our library!</h1>
+        <h3>Using our site you can buy and borrow books of your choosing</h3>
+    </div>
+
+    <div class="book-list">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var book in Model)
+            {
+                <div class="book-item">
+                    <h3>@books</h3>
+                    <p>Author: @book.Author</p>
+                    <p>Price: ₪@book.Price</p>
+                    @if (book.DiscountPrice.HasValue)
+                    {
+                        <p>On Sale: ₪@book.DiscountPrice</p>
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            <p>No books found.</p>
+        }
+    </div>
+</body>
+</html>
+        
