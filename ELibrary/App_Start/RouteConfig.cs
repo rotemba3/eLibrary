@@ -16,7 +16,7 @@ namespace ELibrary
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
-                defaults: new { controller = "MainLibrary", action = "HomePage", id = UrlParameter.Optional }
+                defaults: new { controller = "MainLibrary", action = "GetBooks", id = UrlParameter.Optional }
             );
         }
     }

@@ -1,11 +1,10 @@
-﻿@model ELibrary.Models.Books;
+﻿@model IEnumerable<ELibrary.Models.Books>
 
 @{
     ViewBag.Title = "Library";
 }
 
 <!DOCTYPE html>
-
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
@@ -14,7 +13,7 @@
 <body>
     <div class="introduction">
         <h1>Welcome to our library!</h1>
-        <h3>Using our site you can buy and borrow books of your choosing</h3>
+        <h3>Using our site, you can buy and borrow books of your choosing</h3>
     </div>
 
     <div class="book-list">
@@ -23,21 +22,27 @@
             foreach (var book in Model)
             {
                 <div class="book-item">
-                    <h3>@books</h3>
-                    <p>Author: @book.Author</p>
+                    <h3>@book.Title</h3>
+                    <p>Author: @book.Authors</p>
                     <p>Price: ₪@book.Price</p>
-                    @if (book.DiscountPrice.HasValue)
+                    @if (book.PriceDecrease > 0) //there is a sale
                     {
-                        <p>On Sale: ₪@book.DiscountPrice</p>
+                        <p><del>Price: ₪@book.Price</del> @(book.Price - (book.Price*(book.PriceDecrease/100)))</p>
                     }
+                    else { <p>Price: ₪@book.Price</p>}
+                    <p>Genre: @book.Genre</p>
+                    <p>Description: @book.Desrip</p> <!--does not need to buy here-->
+                </div>
+                <div class="Buy&Borrow-Button">
+                    <button type="submit" class="signup-btn">Buy</button>
+                    @if(book.IsBuyOnly == false) { <button type="submit" class="signup-btn">Borrow</button> }
                 </div>
             }
         }
         else
         {
-            <p>No books found.</p>
+            <p>No books available.</p> <!--Library is empty-->
         }
     </div>
 </body>
 </html>
-        
