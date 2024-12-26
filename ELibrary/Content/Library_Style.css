@@ -1,0 +1,28 @@
+﻿body {
+}
+
+.Title-link {
+    font-family: 'Arial', sans-serif;
+    font-size: 16px;
+    text-decoration: none; /* Removes underline */
+    color: #000000; /* Blue color for the link */
+}
+
+    /* Hover state */
+    .Title-link:hover {
+        text-decoration: none; /* Underline only on hover */
+        color: #0056b3; /* Darker blue */
+    }
+
+    /* Remove visited (clicked) styling */
+    .Title-link:visited {
+        color: #000000; /* Ensure visited color is the same as default */
+        text-decoration: none; /* Prevent underline on visited links */
+    }
+
+.Title {
+    font-family: 'Arial', sans-serif;
+    font-size: 16px;
+    text-decoration: none; /* Removes underline */
+    color: #000000; /* Blue color for the link */
+}

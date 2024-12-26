@@ -1,14 +1,13 @@
 ﻿@model IEnumerable<ELibrary.Models.Books>
-
 @{
     ViewBag.Title = "Library";
 }
-
 <!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
     <title>Library</title>
+    <link rel="stylesheet" href="~\Content\Library_Style.css" /> <!-- הוספת קובץ CSS -->
 </head>
 <body>
     <div class="introduction">
@@ -21,7 +20,7 @@
                 foreach (var book in Model)
                 {
                     <div class="book-item">
-                        <h3>@book.Title</h3>
+                        <h3>@Html.ActionLink(book.Title, "Details", "MainLibrary", new { ISBN = book.ISBN }, new {@class = "Title-link"})</h3>
                         <p>Author: @book.Authors</p>
                         @if (book.PriceDecrease > 0) //there is a sale
                         {

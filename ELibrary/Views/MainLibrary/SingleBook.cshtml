@@ -1,4 +1,4 @@
-﻿
+﻿@model ELibrary.Models.Books
 @{
     Layout = null;
 }
@@ -11,7 +11,24 @@
     <title>SingleBook</title>
 </head>
 <body>
-    <div> 
+    <div id="Book-info" class="popup-book">
+        <h3>Book Info</h3>
+        <h2>@Model.Title</h2>
+        <p>Author: @Model.Authors</p>
+        <p>Genre: @Model.Genre</p>
+        <p>Price: ₪@Model.Price</p>
+        if (@Model.PriceDecrease > 0) //there is a sale
+        {
+            <p>Price: ₪<del>@Model.Price</del> @(Model.Price - (Model.Price * (Model.PriceDecrease * 0.01)))</p>
+        }
+        else
+        { <p>Price: ₪@Model.Price</p> }
+        <p>Description: @Model.Desrip</p> <!--does not need to buy here-->
+    </div>
+    <div id="Reviews-list">
+        <section id="review-block">
+            <p></p>
+        </section>
     </div>
 </body>
 </html>

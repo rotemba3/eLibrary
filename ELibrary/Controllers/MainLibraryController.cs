@@ -66,9 +66,48 @@ namespace ELibrary.Controllers
             return View(LibraryList);
         }
 
+        public ActionResult GetReviews() 
+        {
+            List<Reviews> Reviews_list = new List<Reviews>();
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                //System.Diagnostics.Debug.WriteLine("All Books Count: " + LibraryList.Count); //check size of list
+                System.Diagnostics.Debug.WriteLine("Connection String: " + connection.Database); //check connection to db
+                connection.Open();
+                string sqlQuery = "SELECT * FROM Reviews";
+                using (SqlCommand commend = new SqlCommand(sqlQuery, connection))
+                {
+                    SqlDataReader reader = commend.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        try
+                        {
+                            Reviews book = new Reviews
+                            {
+                                ISBN = reader.GetString(0),
+                                Username = reader.GetString(1),
+                                Stars = reader.GetInt32(2),
+                                Info = reader.GetString(3)
+                            };
+                            Reviews_list.Add(book);
+                        }
+                        catch (Exception ex) { Console.WriteLine($"Error reading data: {ex.Message}"); }
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            if (Reviews_list == null || Reviews_list.Count == 0)
+            {
+                System.Diagnostics.Debug.WriteLine("Reviews list  is null or empty.");
+            }
+            System.Diagnostics.Debug.WriteLine("All Reviews Count: " + Reviews_list.Count);
+            return View(Reviews_list);
+        }
+
         public ActionResult SingleBook() 
         {
-            return View();
+            return View(GetReviews());
         }
 
         public ActionResult CheckOut() { return View(); }

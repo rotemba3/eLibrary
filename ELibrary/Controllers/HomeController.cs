@@ -11,6 +11,7 @@ namespace ELibrary.Controllers
         // GET: Home
         public ActionResult HomePage()
         {
+            ViewBag.Title = "HomePage";
             return View();
         }
     }

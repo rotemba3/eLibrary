@@ -22,4 +22,12 @@ namespace ELibrary.Models
         public bool IsBuyOnly { get; set; }
         public string Desrip { get; set; }
     }
+
+    public class Reviews
+    {
+        public string ISBN { get; set; }
+        public string Username { get; set; }
+        public int Stars { get; set; }
+        public string Info { get; set; }
+    }
 }
