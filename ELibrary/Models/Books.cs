@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Ajax.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
@@ -9,7 +10,7 @@ namespace ELibrary.Models
 {
     public class Books
     {
-        public int ISBN { get; set; }
+        public string ISBN { get; set; }
         public string Title { get; set; }
         public string Authors { get; set; }
         public double Price { get; set; }

@@ -14,10 +14,22 @@
             <button class="search-button">🔍</button>
         </div>
         <ul class="nav-links">
+            <li>@Html.ActionLink("Home", "HomePage", "Home", new { area = "" }, new { @class = "nav-link" })</li>
             <li>@Html.ActionLink("Library", "Library", "MainLibrary", new { area = "" }, new { @class = "nav-link" })</li>
-            <!--<li>@Html.ActionLink("About", "About", "Profile", new { area = "" }, new { @class = "nav-link" })</li>
-            <li>@Html.ActionLink("Profile", "UserProfile", "Profile", new { area = "" }, new { @class = "nav-link" })</li> -->
+            <li>@Html.ActionLink("About", "About", "Profile", new { area = "" }, new { @class = "nav-link" })</li>
+            <li>@Html.ActionLink("Profile", "UserProfile", "Profile", new { area = "" }, new { @class = "nav-link" })</li>
         </ul>
+        <!-- כפתור כניסה למנוע חיפוש -->
+        <section class="search-books">
+            <h2>Search for Books</h2>
+            <a href="@Url.Action("Search", "Books")" class="btn btn-primary">Go to Search</a>
+        </section>
+
+        <!-- כפתור הרשמה והתחברות -->
+        <section class="auth-section">
+            <a href="@Url.Action("Register", "Account")" class="btn btn-success">Sign Up</a>
+            <a href="@Url.Action("Login", "Account")" class="btn btn-secondary">Login</a>
+        </section>
     </nav>
     <div>
         @RenderBody()
