@@ -104,7 +104,6 @@ namespace ELibrary.Controllers
                 List<Reviews> Reviews_list = new List<Reviews>();
                 using (SqlConnection connection_2 = new SqlConnection(ConnectionString))
                 {
-                    //System.Diagnostics.Debug.WriteLine("All Books Count: " + LibraryList.Count); //check size of list
                     System.Diagnostics.Debug.WriteLine("Connection String: " + connection_2.Database); //check connection to db
                     connection_2.Open();
                     string sqlQuery_2 = "SELECT * FROM Reviews WHERE ISBN = @ISBN";
@@ -142,9 +141,10 @@ namespace ELibrary.Controllers
                     book = selectedBook,
                     reviews_list = Reviews_list
                 };
-                return View(model);
+                return PartialView(model);
             }
         }
+
         public ActionResult CheckOut() { return View(); }
     }
 }

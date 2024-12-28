@@ -11,7 +11,7 @@ namespace ELibrary.Controllers
 {
     public class ProfileController : Controller
     {
-        private readonly string ConnectionString = ConfigurationManager.ConnectionStrings["deafultConnectionString_R"].ConnectionString;
+        private readonly string ConnectionString = ConfigurationManager.ConnectionStrings["DefaultConnectionString_R"].ConnectionString;
 
         // GET: Profile
         public ActionResult UserProfile()

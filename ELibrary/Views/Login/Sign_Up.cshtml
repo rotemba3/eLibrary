@@ -1,0 +1,139 @@
+﻿@{
+    ViewBag.Title = "Sign Up";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .signup-container {
+            background: #fff;
+            padding: 25px 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            text-align: center;
+        }
+
+            .signup-container h1 {
+                margin-bottom: 20px;
+                color: #333;
+            }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: bold;
+                color: #555;
+            }
+
+            .form-group input,
+            .form-group select {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                font-size: 14px;
+                transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            }
+
+                .form-group input:focus,
+                .form-group select:focus {
+                    border-color: #2575fc;
+                    box-shadow: 0 0 8px rgba(37, 117, 252, 0.3);
+                    outline: none;
+                }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .signup-btn,
+        .back-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .signup-btn {
+            background-color: #2575fc;
+            color: white;
+        }
+
+            .signup-btn:hover {
+                background-color: #1a5bb8;
+            }
+
+        .back-btn {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+            .back-btn:hover {
+                background-color: #d6d6d6;
+            }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <h1>Create an Account</h1>
+        <form action="/Account/SignUp" method="POST">
+            <!-- שם משתמש -->
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            </div>
+
+            <!-- סיסמה -->
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+
+            <!-- אימייל -->
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+
+            <!-- סוג משתמש -->
+            <div class="form-group">
+                <label for="role">Register as:</label>
+                <select id="role" name="role" required>
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+
+            <!-- כפתורים -->
+            <div class="form-actions">
+                <button type="submit" class="signup-btn">Sign Up</button>
+                <button type="button" class="back-btn" onclick="location.href='/Login/Home_page'">Back to home page</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
