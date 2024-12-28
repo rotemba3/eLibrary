@@ -132,6 +132,7 @@
     </Compile>
     <Compile Include="Models\Books.cs" />
     <Compile Include="Models\Login.cs" />
+    <Compile Include="Models\Users.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

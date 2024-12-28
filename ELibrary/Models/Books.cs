@@ -30,4 +30,10 @@ namespace ELibrary.Models
         public int Stars { get; set; }
         public string Info { get; set; }
     }
+
+    public class Book_and_Reviews 
+    {
+        public Books book { get; set; }
+        public List<Reviews> reviews_list { get; set; }
+    }
 }

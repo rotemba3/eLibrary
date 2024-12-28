@@ -1,4 +1,4 @@
-﻿@model ELibrary.Models.Books
+﻿@model ELibrary.Models.Book_and_Reviews
 @{
     Layout = null;
 }
@@ -13,21 +13,40 @@
 <body>
     <div id="Book-info" class="popup-book">
         <h3>Book Info</h3>
-        <h2>@Model.Title</h2>
-        <p>Author: @Model.Authors</p>
-        <p>Genre: @Model.Genre</p>
-        <p>Price: ₪@Model.Price</p>
-        if (@Model.PriceDecrease > 0) //there is a sale
+        <h2>@Model.book.Title</h2>
+        <p>Author: @Model.book.Authors</p>
+        <p>Genre: @Model.book.Genre</p>
+        @if (@Model.book.PriceDecrease > 0) //there is a sale
         {
-            <p>Price: ₪<del>@Model.Price</del> @(Model.Price - (Model.Price * (Model.PriceDecrease * 0.01)))</p>
+            <p>Price: ₪<del>@Model.book.Price</del> @(Model.book.Price - (Model.book.Price * (Model.book.PriceDecrease * 0.01)))</p>
         }
         else
-        { <p>Price: ₪@Model.Price</p> }
-        <p>Description: @Model.Desrip</p> <!--does not need to buy here-->
+        { <p>Price: ₪@Model.book.Price</p>}
+        <p>Description: @Model.book.Desrip</p> <!--does not need to buy here-->
     </div>
+
+    <div class="Buy&Borrow-Button">
+        <button type="submit" class="signup-btn">Buy</button>
+        @if (Model.book.IsBuyOnly == false)
+        {<button type="submit" class="signup-btn">Borrow</button>}
+    </div>
+
     <div id="Reviews-list">
         <section id="review-block">
-            <p></p>
+            <h3>Reviews</h3>
+            @if (Model.reviews_list != null && Model.reviews_list.Any())
+            {
+                foreach (var review in Model.reviews_list)
+                {
+                    <div class="review-item">
+                        <p><strong>User:</strong>@review.Username</p>
+                        <p><strong>Rating:</strong>@review.Stars/5</p>
+                        <p><strong>Review:</strong>@review.Info</p>
+                    </div>
+                }
+            }
+            else
+            { <p>No reviews avalible for this book.</p>}
         </section>
     </div>
 </body>

@@ -20,14 +20,14 @@
                 foreach (var book in Model)
                 {
                     <div class="book-item">
-                        <h3>@Html.ActionLink(book.Title, "Details", "MainLibrary", new { ISBN = book.ISBN }, new {@class = "Title-link"})</h3>
+                        <h3>@Html.ActionLink(book.Title, "SingleBook", "MainLibrary", new { ISBN = book.ISBN }, new {@class = "Title-link"})</h3>
                         <p>Author: @book.Authors</p>
                         @if (book.PriceDecrease > 0) //there is a sale
                         {
                             <p>Price: ₪<del>@book.Price</del> @(book.Price - (book.Price * (book.PriceDecrease * 0.01)))</p>
                         }
                         else
-                        { <p>Price: ₪@book.Price</p>}
+                        { <p>Price: ₪@book.Price</p> }
                         <p>Genre: @book.Genre</p>
                         <p>Description: @book.Desrip</p> <!--does not need to buy here-->
                     </div>

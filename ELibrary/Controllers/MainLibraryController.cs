@@ -66,50 +66,85 @@ namespace ELibrary.Controllers
             return View(LibraryList);
         }
 
-        public ActionResult GetReviews() 
+        public ActionResult SingleBook(string Isbn) 
         {
-            List<Reviews> Reviews_list = new List<Reviews>();
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            Books selectedBook = null;
+            using (SqlConnection connection = new SqlConnection(ConnectionString)) //opening connection
             {
-                //System.Diagnostics.Debug.WriteLine("All Books Count: " + LibraryList.Count); //check size of list
-                System.Diagnostics.Debug.WriteLine("Connection String: " + connection.Database); //check connection to db
                 connection.Open();
-                string sqlQuery = "SELECT * FROM Reviews";
-                using (SqlCommand commend = new SqlCommand(sqlQuery, connection))
+                string sqlQuery = "SELECT * FROM Book WHERE ISBN = @ISBN"; //using specific isbn
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
-                    SqlDataReader reader = commend.ExecuteReader();
-                    while (reader.Read())
+                    command.Parameters.AddWithValue("@ISBN", Isbn);
+                    SqlDataReader reader = command.ExecuteReader();
+                    if (reader.Read())
                     {
-                        try
+                        selectedBook = new Books
                         {
-                            Reviews book = new Reviews
-                            {
-                                ISBN = reader.GetString(0),
-                                Username = reader.GetString(1),
-                                Stars = reader.GetInt32(2),
-                                Info = reader.GetString(3)
-                            };
-                            Reviews_list.Add(book);
-                        }
-                        catch (Exception ex) { Console.WriteLine($"Error reading data: {ex.Message}"); }
+                            ISBN = reader.GetString(0),
+                            Title = reader.GetString(1),
+                            Authors = reader.GetString(2),
+                            Price = reader.GetDouble(3),
+                            PriceDecrease = reader.IsDBNull(4) ? 0 : reader.GetInt32(4),
+                            Cover = reader.GetString(5),
+                            Publisher = reader.GetString(6),
+                            PublishYear = reader.GetDateTime(7),
+                            Genre = reader.GetString(8),
+                            IsBuyOnly = reader.GetBoolean(9),
+                            Desrip = reader.IsDBNull(10) ? string.Empty : reader.GetString(10)
+                        };
                     }
-                    reader.Close();
                 }
                 connection.Close();
-            }
-            if (Reviews_list == null || Reviews_list.Count == 0)
-            {
-                System.Diagnostics.Debug.WriteLine("Reviews list  is null or empty.");
-            }
-            System.Diagnostics.Debug.WriteLine("All Reviews Count: " + Reviews_list.Count);
-            return View(Reviews_list);
-        }
+                if (selectedBook == null)
+                {
+                    return HttpNotFound(); // Handle cases where the book isn't found.
+                }
 
-        public ActionResult SingleBook() 
-        {
-            return View(GetReviews());
-        }
+                List<Reviews> Reviews_list = new List<Reviews>();
+                using (SqlConnection connection_2 = new SqlConnection(ConnectionString))
+                {
+                    //System.Diagnostics.Debug.WriteLine("All Books Count: " + LibraryList.Count); //check size of list
+                    System.Diagnostics.Debug.WriteLine("Connection String: " + connection_2.Database); //check connection to db
+                    connection_2.Open();
+                    string sqlQuery_2 = "SELECT * FROM Reviews WHERE ISBN = @ISBN";
+                    using (SqlCommand commend = new SqlCommand(sqlQuery_2, connection_2))
+                    {
+                        commend.Parameters.AddWithValue("@ISBN", Isbn);
+                        SqlDataReader reader = commend.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            try
+                            {
+                                Reviews book = new Reviews
+                                {
+                                    ISBN = reader.GetString(0),
+                                    Username = reader.GetString(1),
+                                    Stars = reader.GetInt32(2),
+                                    Info = reader.GetString(3)
+                                };
+                                Reviews_list.Add(book);
+                            }
+                            catch (Exception ex) { Console.WriteLine($"Error reading data: {ex.Message}"); }
+                        }
+                        reader.Close();
+                    }
+                    connection_2.Close();
+                }
+                if (Reviews_list == null || Reviews_list.Count == 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("Reviews list  is null or empty.");
+                }
+                System.Diagnostics.Debug.WriteLine("All Reviews Count: " + Reviews_list.Count);
 
+                var model = new Book_and_Reviews
+                {
+                    book = selectedBook,
+                    reviews_list = Reviews_list
+                };
+                return View(model);
+            }
+        }
         public ActionResult CheckOut() { return View(); }
     }
 }
