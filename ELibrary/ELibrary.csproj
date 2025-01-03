@@ -203,7 +203,6 @@
     <Content Include="Views\Profile\AdminProfile.cshtml" />
     <Content Include="Views\Login\Sign_Up.cshtml" />
     <Content Include="Views\Login\Forgot_password.cshtml" />
-    <Content Include="Views\Login\Login.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -20,45 +20,7 @@ namespace ELibrary.Controllers
             return View();
         }
 
-        //to verify info
-        [HttpPost]
-        public ActionResult Verify(Login acc)
-        {
-            // בדיקה אם שם המשתמש או הסיסמה ריקים
-            if (string.IsNullOrEmpty(acc.Name) || string.IsNullOrEmpty(acc.Password))
-            {
-                ViewBag.Message = "Username and password are required.";
-                return View("Login"); // חזרה לדף ההתחברות
-            }
-
-            // בדיקה אם שם המשתמש מכיל רק מספרים
-            if (System.Text.RegularExpressions.Regex.IsMatch(acc.Name, @"^\d+$"))
-            {
-                ViewBag.Message = "Username cannot contain only numbers. It must include letters and numbers.";
-                return View("Login"); // חזרה לדף ההתחברות
-            }
-
-            // בדיקה אם הסיסמה באורך 8 לפחות וכוללת אותיות ומספרים
-            if (!System.Text.RegularExpressions.Regex.IsMatch(acc.Password, @"^(?=.*[A-Za-z])(?=.*\d).{8,}$"))
-            {
-                ViewBag.Message = "Password must be at least 8 characters long and include both letters and numbers.";
-                return View("Login"); // חזרה לדף ההתחברות
-            }
-
-            // אם כל הבדיקות עברו, לבצע אימות שם משתמש וסיסמה
-            if (acc.Name == "admin" && acc.Password == "1234")
-            {
-                ViewBag.Message = "Login successful!";
-                return View("HomePage"); // מעבר לדף הצלחה
-            }
-            else
-            {
-                ViewBag.Message = "Invalid username or password.";
-                return View("Login"); // חזרה לדף ההתחברות עם הודעת שגיאה
-            }
-        }
-
-        [HttpPost]
+        [HttpPost] //verify Credentials
         public ActionResult Verify_Login(string username, string password)
         {
             Users user = null;
@@ -165,7 +127,7 @@ namespace ELibrary.Controllers
 
         public ActionResult Forgot_password()
         {
-            ViewBag.Title = "forgot_password";
+            ViewBag.Title = "Forgot_password";
             return View();
         }
 
