@@ -1,5 +1,7 @@
-﻿@{
-    ViewBag.Title = "Sign Up";
+﻿@model IEnumerable<ELibrary.Models.Users>
+
+@{
+    ViewBag.Title = "Sign_Up";
 }
 
 <!DOCTYPE html>
@@ -100,7 +102,7 @@
 <body>
     <div class="signup-container">
         <h1>Create an Account</h1>
-        <form action="/Account/SignUp" method="POST">
+        <form action="/Login/Sign_Up_click" method="POST">
             <!-- שם משתמש -->
             <div class="form-group">
                 <label for="username">Username:</label>

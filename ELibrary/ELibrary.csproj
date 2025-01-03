@@ -152,8 +152,10 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\home.js" />
     <Content Include="Content\HomePage_Style.css" />
     <Content Include="Content\Library_Style.css" />
+    <Content Include="Content\main.js" />
     <Content Include="Content\main_Style.css" />
     <Content Include="Content\NavBar.css" />
     <Content Include="Content\Profile_Style.css" />

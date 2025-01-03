@@ -125,3 +125,125 @@
     .popular-books h2 {
         color: white; /* צבע הכותרת */
     }
+
+.modal {
+    display: none; /* מוסתר כברירת מחדל */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* רקע כהה חצי שקוף */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #f9f9f9;
+    border-radius: 15px;
+    padding: 30px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); /* אפקט צל */
+    text-align: center;
+    position: relative;
+}
+
+.close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #888;
+}
+
+    .close:hover {
+        color: #000;
+    }
+
+.modal-content h2 {
+    font-family: Arial, sans-serif;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.modal-content button {
+    background-color: #7a6ff0;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+    .modal-content button:hover {
+        background-color: #6956cc;
+    }
+
+.modal-content a {
+    color: #7a6ff0;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+    .modal-content a:hover {
+        text-decoration: underline;
+    }
+
+.profile-icon {
+    margin-left: 10px; /* ריווח קטן בין האייקון לקטגוריות */
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+/*חלונית של הכניסה למשתמש */
+.modal {
+    display: none; /* מוסתר כברירת מחדל */
+    position: fixed;
+    z-index: 1000; /* מבטיח שהמודאל מופיע מעל כל האלמנטים */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* רקע כהה חצי שקוף */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    width: 400px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* אפקט צל */
+    text-align: center;
+}

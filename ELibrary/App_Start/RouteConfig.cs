@@ -21,8 +21,8 @@ namespace ELibrary
 
             routes.MapRoute(
                 name: "SearchAutocomplete",
-                url: "Books/SearchAutocomplete",
-                defaults: new { controller = "Books", action = "SearchAutocomplete" }
+                url: "Home/SearchAutocomplete",
+                defaults: new { controller = "Home", action = "SearchAutocomplete" }
             );
 
             routes.MapRoute(
@@ -32,12 +32,12 @@ namespace ELibrary
             );
             routes.MapRoute(
                 name: "Sign_Up",
-                url: "Login/sign_up",
+                url: "Login/Sign_Up",
                 defaults: new { controller = "Login", action = "Sign_Up" }
             );
             routes.MapRoute(
                 name: "Forgot_password",
-                url: "login/forgot_password",
+                url: "Login/Forgot_password",
                 defaults: new { controller = "Login", action = "Forgot_password" }
             );
         }

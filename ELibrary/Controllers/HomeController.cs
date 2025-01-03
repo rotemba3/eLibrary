@@ -18,71 +18,6 @@ namespace ELibrary.Controllers
             ViewBag.Title = "Index";
             return View();
         }
-
-        [HttpPost]
-        public ActionResult Verify(Login acc)
-        {
-            // בדיקה אם שם המשתמש או הסיסמה ריקים
-            if (string.IsNullOrEmpty(acc.Name) || string.IsNullOrEmpty(acc.Password))
-            {
-                ViewBag.Message = "Username and password are required.";
-                return View("index"); // חזרה לדף ההתחברות
-            }
-
-            // בדיקה אם שם המשתמש מכיל רק מספרים
-            if (System.Text.RegularExpressions.Regex.IsMatch(acc.Name, @"^\d+$"))
-            {
-                ViewBag.Message = "Username cannot contain only numbers. It must include letters and numbers.";
-                return View("index"); // חזרה לדף ההתחברות
-            }
-
-            // בדיקה אם הסיסמה באורך 8 לפחות וכוללת אותיות ומספרים
-            if (!System.Text.RegularExpressions.Regex.IsMatch(acc.Password, @"^(?=.*[A-Za-z])(?=.*\d).{8,}$"))
-            {
-                ViewBag.Message = "Password must be at least 8 characters long and include both letters and numbers.";
-                return View("index"); // חזרה לדף ההתחברות
-            }
-
-            // אם כל הבדיקות עברו, לבצע אימות שם משתמש וסיסמה
-            if (acc.Name == "admin" && acc.Password == "1234")
-            {
-                ViewBag.Message = "Login successful!";
-                return View("Success"); // מעבר לדף הצלחה
-            }
-            else
-            {
-                ViewBag.Message = "Invalid username or password.";
-                return View("index"); // חזרה לדף ההתחברות עם הודעת שגיאה
-            }
-        }
-        // פעולה לדף ההרשמה
-        public ActionResult Sign_Up()
-        {
-            ViewBag.Title = "Sign Up";
-            return View(); // מציג את דף ההרשמה
-        }
-        // פעולה עבור דף ההרשמה (SignUp)
-        [HttpPost]
-        public ActionResult sign_up(string username, string password, string email, string role)
-        {
-            // בדיקות בסיסיות
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(email))
-            {
-                ViewBag.Error = "All fields are required.";
-                return View(); // חזרה לדף ההרשמה עם הודעת שגיאה
-            }
-
-            // לוגיקה לרישום משתמש חדש
-            // לדוגמה: שמירת המשתמש בבסיס נתונים (כאן תצטרכי להוסיף קוד מתאים)
-
-            // הפניה לעמוד ההתחברות אחרי הרשמה מוצלחת
-            return RedirectToAction("index");
-        }
-        public ActionResult Forgot_password()
-        {
-            ViewBag.Title = "forgot_password";
-            return View();
-        }
         public ActionResult HomePage()
         {
             List<Books> book_list = new List<Books>(); //שליפת ספרים מומלצים במבצע
@@ -121,28 +56,45 @@ namespace ELibrary.Controllers
                 connection.Close();
                 System.Diagnostics.Debug.WriteLine("All Books Count: " + book_list.Count);
 
-                return View(book_list);
+                //הצגת 6 ספרים מומלצים במבצע כל פעם
+                Random random = new Random(); 
+                List<Books> Feature_books = book_list.OrderBy(x => random.Next()).Take(6).ToList();
+
+                return View(Feature_books);
             }
         }
 
-        //public ActionResult TestDatabaseConnection()
-        //{
-        //    using (var db = new ApplicationDbContext())
-        //    {
-        //        var books = db.Database.SqlQuery<Book>("SELECT * FROM dbo.Books").ToList();
-        //        System.Diagnostics.Debug.WriteLine("Direct SQL Query Books Count: " + books.Count);
-        //        return Content($"Direct SQL Query Books Count: {books.Count}");
-        //    }
-        //}
-
-        public ActionResult Register()
+        [HttpGet]
+        public JsonResult SearchAutoComplete(string query)
         {
-            return View("sign_up");
+            if (string.IsNullOrEmpty(query))
+            {
+                return Json(new List<object>(), JsonRequestBehavior.AllowGet);
+            }
+
+            List<object> foundBooks = new List<object>();
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string sqlQuery = "SELECT Title, Authors, Cover FROM Book WHERE Title LIKE @Query OR Authors LIKE @Query";
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@Query", $"%{query}%"); // Use parameterized query to prevent SQL injection
+                    SqlDataReader reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        foundBooks.Add(new
+                        {
+                            Title = reader.GetString(0),
+                            Authors = reader.GetString(1),
+                            Cover = reader.GetString(2)
+                        });
+                    }
+                }
+            }
+            return Json(foundBooks.Take(10), JsonRequestBehavior.AllowGet); // Limit results to 10 for performance
         }
 
-        public ActionResult ForgotPassword()
-        {
-            return View("forgot_password");
-        }
     }
 }

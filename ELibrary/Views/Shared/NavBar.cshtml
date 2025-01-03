@@ -7,80 +7,84 @@
     <title>@ViewBag.Title ELibrary</title>
     @Styles.Render("~/Content/NavBar.css")
 </head>
-<body>
-    <nav class="navbar navbar-expand-sm">
-        <div class="search-bar">
-            <input type="text" placeholder="Type Something..." />
-            <button class="search-button">🔍</button>
-            <div id="search-results" class="search-results"></div>
+@if (ViewContext.RouteData.Values["controller"].ToString() != "Login") //so the nav bar wont show where its not needed
+{
+    <body>
+        <nav class="navbar navbar-expand-sm">
+            <div class="search-bar">
+                <input type="text" placeholder="Type Something..." />
+                <button class="search-button">🔍</button>
+                <div id="search-results" class="search-results"></div>
+            </div>
+            <ul class="nav-links">
+                <li>@Html.ActionLink("Home", "HomePage", "Home")</li>
+                <li>@Html.ActionLink("Library", "Library", "MainLibrary")</li>
+                <li>@Html.ActionLink("Profile", "UserProfile", "Profile")</li>
+                <li>@Html.ActionLink("Checkout", "CheckOut", "MainLibrary")</li>
+            </ul>
+            <!-- עיגול הפרופיל -->
+            <div class="profile-icon" id="profile-icon">
+                <a href="#">
+                    <img src="~/Pictures/icons8-user-50.png" alt="Profile" />
+                </a>
+            </div>
+        </nav>
+        <!-- חלונית מודאלית -->
+        <div id="profile-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" id="modal-close">&times;</span>
+                <h2>Login</h2>
+                <form action="/Login/Verify_Login"> <!--the action will direct to the Login controller-->
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" placeholder="Enter your username" />
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" placeholder="Enter your password" />
+                    </div>
+                    <div class="form-group">
+                        <button type="button">Login</button>
+                    </div>
+                    <p><a href="@Url.Action("Register", "Login")">Don't have an account? Register here.</a></p>
+                    <p><a href="@Url.Action("ForgotPassword", "Login")">Forgot your password?</a></p>
+                </form>
+            </div>
         </div>
-        <ul class="nav-links">
-            <li>@Html.ActionLink("Home", "HomePage", "Home")</li>
-            <li>@Html.ActionLink("Library", "Library", "MainLibrary")</li>
-            <li>@Html.ActionLink("Profile", "UserProfile", "Profile")</li>
-            <li>@Html.ActionLink("Checkout", "CheckOut", "MainLibrary")</li>
-        </ul>
-        <!-- עיגול הפרופיל -->
-        <div class="profile-icon" id="profile-icon">
-            <a href="#">
-                <img src="~/Pictures/icons8-user-50.png" alt="Profile" />
-            </a>
-        </div>
-    </nav>
-    <!-- חלונית מודאלית -->
-    <div id="profile-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close" id="modal-close">&times;</span>
-            <h2>Login</h2>
-            <form>
-                <div class="form-group">
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" placeholder="Enter your username" />
-                </div>
-                <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" placeholder="Enter your password" />
-                </div>
-                <div class="form-group">
-                    <button type="button">Login</button>
-                </div>
-                <p><a href="@Url.Action("Register", "Login")">Don't have an account? Register here.</a></p>
-                <p><a href="@Url.Action("ForgotPassword", "Login")">Forgot your password?</a></p>
-            </form>
-        </div>
-    </div>
-    <div>
-        @RenderBody()
-    </div>
-    <script>
-    // Script for modal functionality
-    const profileIcon = document.getElementById('profile-icon');
-    const modal = document.getElementById('profile-modal');
-    const closeModal = document.getElementById('modal-close');
+        <script src="~/Content/home.js"></script>
+        <script>
+            // Script for modal functionality
+            const profileIcon = document.getElementById('profile-icon');
+            const modal = document.getElementById('profile-modal');
+            const closeModal = document.getElementById('modal-close');
 
-    profileIcon.addEventListener('click', () => {
-        modal.style.display = 'block'; // פתיחת החלונית
-    });
+            profileIcon.addEventListener('click', () => {
+                modal.style.display = 'block'; // פתיחת החלונית
+            });
 
-    closeModal.addEventListener('click', () => {
-        modal.style.display = 'none'; // סגירת החלונית
-    });
+            closeModal.addEventListener('click', () => {
+                modal.style.display = 'none'; // סגירת החלונית
+            });
 
-    window.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            modal.style.display = 'none'; // סגירה בלחיצה מחוץ לחלונית
-        }
-    });
+            window.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    modal.style.display = 'none'; // סגירה בלחיצה מחוץ לחלונית
+                }
+            });
 
-    const checkoutLink = document.getElementById('checkout-link');
+            const checkoutLink = document.getElementById('checkout-link');
 
-    checkoutLink.addEventListener('click', (event) => {
-        event.preventDefault(); // מונע מעבר מיידי
-        const confirmExit = confirm("Are you sure you want to leave the site?");
-        if (confirmExit) {
-            window.location.href = '/Order/Checkout'; // מעביר לדף היציאה
-        }
-    });
-    </script>
-</body>
+            checkoutLink.addEventListener('click', (event) => {
+                event.preventDefault(); // מונע מעבר מיידי
+                const confirmExit = confirm("Are you sure you want to leave the site?");
+                if (confirmExit) {
+                    window.location.href = '/Order/Checkout'; // מעביר לדף היציאה
+                }
+            });
+        </script>
+    </body>
+}
+<div>
+    @RenderBody()
+</div>
 </html>
