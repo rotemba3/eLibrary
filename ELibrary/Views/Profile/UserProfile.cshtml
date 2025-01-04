@@ -1,4 +1,4 @@
-﻿@model ELibrary.Models.Users
+﻿@model ELibrary.Models.User_Profile_info
 @{
     Layout = null;
 }
@@ -11,7 +11,69 @@
     <title>UserProfile</title>
 </head>
 <body>
-    <div> 
-    </div>
+    <h1>Welcome, @Model.user.Username!</h1>
+
+    <section class="Books-section">
+        <!--User books section-->
+        <h2>Your Books:</h2>
+        @if (Model.books != null && Model.books.Any())
+        {
+            foreach (var book in Model.books)
+            {
+                <div class="review-item">
+                    <p><strong>Title:</strong>@book.Title/5</p>
+                    <p><strong>Authors:</strong>@book.Authors</p>
+                    <p>@book.Cover</p>
+                    @if(book.IsBuyOnly = false) 
+                    {
+                        <p><strong>Borrowed Time:</strong></p>
+                    }
+                </div>
+            }
+        }
+        else
+        { <p>No reviews avalible.</p>}
+    </section>
+
+    <section class="Reviews-section">
+        <!-- Reviews Section -->
+        <h2>Your Reviews</h2>
+        @if (Model.reviews != null && Model.reviews.Any())
+        {
+            foreach (var review in Model.reviews)
+            {
+                <div class="review-item">
+                    @foreach (var book in Model.books)
+                    {
+                        if (review.ISBN == book.ISBN)
+                        {
+                            <p><strong>Title:</strong>@book.Title</p>
+                            <p>@book.Cover</p>
+                        }
+                    }
+                    <p><strong>Rating:</strong>@review.Stars/5</p>
+                    <p><strong>Review:</strong>@review.Info</p>
+                </div>
+            }
+        }
+        else
+        { <p>No reviews avalible.</p>}
+    </section>
+
+    <section class="Waiting-list">
+        <!-- Wating list Section -->
+        <h2>Your Waiting list:</h2>
+        @if (Model.waiting_lists != null && Model.waiting_lists.Any()) 
+        {
+            foreach (var line in Model.waiting_lists) 
+            {
+                <div class="Waiting-item">
+                    <p><strong>Title:</strong> @line.ISBN</p>
+                    <p><strong>Place in line:</strong>@line.PlaceInLine</p>
+                </div>
+            }
+        }
+        else { <p>You are in no waiting list.</p>}
+    </section>
 </body>
 </html>

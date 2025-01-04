@@ -51,7 +51,7 @@ namespace ELibrary.Controllers
                 }
                 connection.Close();
             }
-                // בדיקה אם שם המשתמש או הסיסמה ריקים
+            // בדיקה אם שם המשתמש או הסיסמה ריקים
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
                 ViewBag.Message = "Username and password are required.";
@@ -106,7 +106,7 @@ namespace ELibrary.Controllers
                     commend.Parameters.AddWithValue("@Username", username);
                     commend.Parameters.AddWithValue("@Password", password);
                     commend.Parameters.AddWithValue("@Email", email);
-                    if(IsAdmin == "Admin")
+                    if (IsAdmin == "Admin")
                         commend.Parameters.AddWithValue("@IsAdmin", true);
                     else
                         commend.Parameters.AddWithValue("@IsAdmin", false);

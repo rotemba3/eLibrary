@@ -13,4 +13,28 @@ namespace ELibrary.Models
         public string Email { get; set; }
         public bool IsAdmin { get; set; }
     }
+
+    public class User_Library 
+    {
+        public string Username { get; set; }
+        public string ISBN { get; set; }
+        public bool IsBorrowed { get; set; }
+        public DateTime TimeBorrowed { get; set; }
+    }
+
+    public class WaitingLine 
+    {
+        public string ISBN { get; set; }
+        public string Username { get; set; }
+        public int PlaceInLine { get; set; }
+    }
+
+    public class User_Profile_info
+    {
+        public Users user { get; set; }
+        public List<Reviews> reviews { get; set; }
+        public List<Books> books { get; set; }
+        public List<WaitingLine> waiting_lists { get; set; }
+        public List<User_Library> profile_library { get; set; }
+    }
 }
