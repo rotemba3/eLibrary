@@ -21,67 +21,116 @@ namespace ELibrary.Controllers
         }
 
         [HttpPost] //verify Credentials
-        public ActionResult Verify_Login(string username, string password)
+        public JsonResult Verify_Login()
         {
-            Users user = null;
-            using (SqlConnection connection = new SqlConnection(ConnectionString)) //getting the user from the database
+            using (var reader = new System.IO.StreamReader(Request.InputStream))
             {
-                connection.Open();
-                string sqlQuery = "SELECT * FROM User WHERE Username = @Username AND Password = @Password";
-                using (SqlCommand commend = new SqlCommand(sqlQuery, connection))
+                var json = reader.ReadToEnd();
+                var model = Newtonsoft.Json.JsonConvert.DeserializeObject<Login>(json);
+
+                if (string.IsNullOrEmpty(model.Username) || string.IsNullOrEmpty(model.Password))
                 {
-                    commend.Parameters.AddWithValue("@Username", username);
-                    commend.Parameters.AddWithValue("@Password", password);
-                    SqlDataReader reader = commend.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        try
-                        {
-                            user = new Users()
-                            {
-                                Username = reader.GetString(1),
-                                Password = reader.GetString(2),
-                                Email = reader.GetString(3),
-                                IsAdmin = reader.GetBoolean(4)
-                            };
-                        }
-                        catch (Exception ex) { Console.WriteLine($"Error reading data: {ex.Message}"); }
-                    }
-                    reader.Close();
+                    return Json(new { success = false, message = "Username or password cannot be empty." });
                 }
-                connection.Close();
+
+                using (SqlConnection connection = new SqlConnection(ConnectionString))
+                {
+                    connection.Open();
+                    string sqlQuery = "SELECT Username FROM Users WHERE Username = @Username AND Password = @Password";
+                    using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@Username", model.Username);
+                        command.Parameters.AddWithValue("@Password", model.Password);
+                        var Username = command.ExecuteScalar(); // השאילתה מחזירה את שם המשתמש
+                        string usernameString = Username as string;
+                        if (usernameString != null)
+                        {
+                            // שמירת שם המשתמש בקוקי
+                            HttpCookie userCookie = new HttpCookie("Username");
+                            userCookie.Value = usernameString; // שם המשתמש
+                            userCookie.HttpOnly = true; // מונע גישה מ-JavaScript
+                            userCookie.Secure = true; // שימוש רק ב-HTTPS
+                            userCookie.Expires = DateTime.Now.AddDays(7); // תוקף לשבוע
+                            Response.Cookies.Add(userCookie);
+
+                            return Json(new { success = true, username = usernameString });
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid username or password.");
+                            return Json(new { success = false, message = "Invalid username or password." });
+                        }
+                    }
+                }
             }
-            // בדיקה אם שם המשתמש או הסיסמה ריקים
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+        }
+
+        //בודקת האם המשתמש האם ה COOKIE של המשתמש קיים ואז אפשר לזהות אותו
+        [HttpGet] //verify Credentials
+        public JsonResult IsUserLoggedIn()
+        {
+            try
             {
-                ViewBag.Message = "Username and password are required.";
-                return View(); // חזרה לדף ההתחברות
+                // בדיקה אם קיים קוקי בשם "Username"
+                HttpCookie userCookie = Request.Cookies["Username"];
+                if (userCookie != null)
+                {
+                    string username = userCookie.Value;
+
+                    // בדיקת שם המשתמש בבסיס הנתונים
+                    using (SqlConnection connection = new SqlConnection(ConnectionString))
+                    {
+                        connection.Open();
+                        string sqlQuery = "SELECT COUNT(*) FROM Users WHERE Username = @Username";
+                        using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                        {
+                            command.Parameters.AddWithValue("@Username", username);
+
+                            // בדיקה אם שם המשתמש קיים בבסיס הנתונים
+                            object result = command.ExecuteScalar();
+                            int count = result != null ? Convert.ToInt32(result) : 0;
+
+                            if (count > 0)
+                            {
+                                return Json(new { isLoggedIn = true, username = username }, JsonRequestBehavior.AllowGet);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // טיפול בשגיאות
+                Console.WriteLine($"Error in IsUserLoggedIn: {ex.Message}");
+
+                // החזרת הודעת שגיאה למשתמש עם סטטוס מתאים
+                Response.StatusCode = 500; // סטטוס שגיאה פנימית
+                return Json(new { isLoggedIn = false, error = "An error occurred while checking login status." }, JsonRequestBehavior.AllowGet);
             }
 
-            // בדיקה אם שם המשתמש מכיל רק מספרים
-            if (System.Text.RegularExpressions.Regex.IsMatch(username, @"^\d+$"))
-            {
-                ViewBag.Message = "Username cannot contain only numbers. It must include letters and numbers.";
-                return View("Login"); // חזרה לדף ההתחברות
-            }
+            // אם הקוקי לא קיים או אם שם המשתמש אינו נמצא בבסיס הנתונים
+            return Json(new { isLoggedIn = false }, JsonRequestBehavior.AllowGet);
+        }
 
-            // בדיקה אם הסיסמה באורך 8 לפחות וכוללת אותיות ומספרים
-            if (!System.Text.RegularExpressions.Regex.IsMatch(password, @"^(?=.*[A-Za-z])(?=.*\d).{8,}$"))
+        //כדי לבצע יציאה מחק את הקוקי גם כן מהשרת
+        public ActionResult Logout()
+        {
+            try
             {
-                ViewBag.Message = "Password must be at least 8 characters long and include both letters and numbers.";
-                return View("Login"); // חזרה לדף ההתחברות
-            }
+                // מחיקת הקוקי מהלקוח
+                if (Request.Cookies["Username"] != null)
+                {
+                    HttpCookie cookie = new HttpCookie("Username");
+                    cookie.Expires = DateTime.Now.AddDays(-1); // תוקף לפוג תוקף
+                    Response.Cookies.Add(cookie);
+                }
 
-            // אם כל הבדיקות עברו, לבצע אימות שם משתמש וסיסמה
-            if (user != null)
-            {
-                ViewBag.Message = "Login successful!";
-                return View("HomePage"); // מעבר לדף הצלחה
+                return Json(new { success = true });
             }
-            else
+            catch (Exception ex)
             {
-                ViewBag.Message = "Invalid username or password.";
-                return View("Login"); // חזרה לדף ההתחברות עם הודעת שגיאה
+                Console.WriteLine($"Error in Logout: {ex.Message}");
+                return Json(new { success = false, message = "Error during logout." });
             }
         }
 
@@ -138,7 +187,7 @@ namespace ELibrary.Controllers
 
         public ActionResult ForgotPassword()
         {
-            return View("forgot_password");
+            return View("Forgot_password");
         }
     }
 }

@@ -11,22 +11,28 @@
     <title>UserProfile</title>
 </head>
 <body>
-    <h1>Welcome, @Model.user.Username!</h1>
+    <h1>Welcome, @Model.user</h1>
 
     <section class="Books-section">
         <!--User books section-->
         <h2>Your Books:</h2>
-        @if (Model.books != null && Model.books.Any())
+        @if (Model.personal_books != null && Model.personal_books.Any())
         {
-            foreach (var book in Model.books)
+            foreach (var book in Model.personal_books)
             {
                 <div class="review-item">
                     <p><strong>Title:</strong>@book.Title/5</p>
                     <p><strong>Authors:</strong>@book.Authors</p>
                     <p>@book.Cover</p>
-                    @if(book.IsBuyOnly = false) 
+                    @if (book.IsBuyOnly == false)
                     {
-                        <p><strong>Borrowed Time:</strong></p>
+                        foreach (var borrow in Model.UserLibrary) 
+                        {
+                            var date_diff = DateTime.Now - borrow.TimeBorrowed;
+                            var days = date_diff.Days;
+                            var hours = date_diff.Hours;
+                            <p>Time left: @days.ToString():@hours.ToString()</p>
+                        }
                     }
                 </div>
             }
@@ -43,7 +49,7 @@
             foreach (var review in Model.reviews)
             {
                 <div class="review-item">
-                    @foreach (var book in Model.books)
+                    @foreach (var book in Model.personal_books)
                     {
                         if (review.ISBN == book.ISBN)
                         {

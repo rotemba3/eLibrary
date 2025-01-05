@@ -1,5 +1,4 @@
-﻿﻿
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -30,8 +29,8 @@
                 </a>
             </div>
         </nav>
-        <!-- חלונית מודאלית -->
-        <div id="profile-modal" class="modal" style="display: none;">
+        <!--התחברות חלונית מודאלית -->
+        <div id="login-modal" class="modal" style="display: none;">
             <div class="modal-content">
                 <span class="close" id="modal-close">&times;</span>
                 <h2>Login</h2>
@@ -46,43 +45,147 @@
                         <input type="password" id="password" placeholder="Enter your password" />
                     </div>
                     <div class="form-group">
-                        <button type="button">Login</button>
+                        <button type="button" id="login-button">Login</button>
                     </div>
                     <p><a href="@Url.Action("Register", "Login")">Don't have an account? Register here.</a></p>
                     <p><a href="@Url.Action("ForgotPassword", "Login")">Forgot your password?</a></p>
                 </form>
             </div>
+            <!-- חלונית פרופיל -->
+            <div id="profile-modal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <span class="close" id="modal-close">&times;</span>
+                    <h2>Profile</h2>
+                    <p id="welcome-message">Welcome!</p>
+                    <button id="logout-button">Logout</button>
+                </div>
+            </div>
         </div>
-        <!--JavaScript-->
-        <script src="~/Content/home.js"></script>
         <script>
-            // Script for modal functionality
-            const profileIcon = document.getElementById('profile-icon');
-            const modal = document.getElementById('profile-modal');
-            const closeModal = document.getElementById('modal-close');
+            // כאשר הדף נטען
+            document.addEventListener('DOMContentLoaded', function () {
+                // בדיקת סטטוס התחברות בעת טעינת הדף
+                fetch('/Login/IsUserLoggedIn', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.isLoggedIn) {
+                            // אם המשתמש מחובר
+                            document.getElementById('login-modal').style.display = 'none'; // מסתיר את חלונית ההתחברות
+                            document.getElementById('profile-modal').style.display = 'block'; // מציג את חלונית הפרופיל
+                            document.getElementById('welcome-message').textContent = `Welcome, ${data.username}`;
+                        } else {
+                            // אם המשתמש לא מחובר
+                            document.getElementById('login-modal').style.display = 'block'; // מציג את חלונית ההתחברות
+                            document.getElementById('profile-modal').style.display = 'none'; // מסתיר את חלונית הפרופיל
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking login status:', error);
+                    });
 
-            profileIcon.addEventListener('click', () => {
-                modal.style.display = 'block'; // פתיחת החלונית
+                // פתיחת חלונית התחברות בלחיצה על אייקון הפרופיל
+                document.getElementById('profile-icon').addEventListener('click', function () {
+                    const loginModal = document.getElementById('login-modal');
+                    loginModal.style.display = 'block'; // מציג את חלונית ההתחברות
+
+                });
+
+                // סגירת חלונית התחברות בלחיצה על כפתור X
+                document.getElementById('modal-close').addEventListener('click', function () {
+                    const loginModal = document.getElementById('login-modal');
+                    const profileModal = document.getElementById('profile-modal');
+
+                    if (loginModal.style.display === 'block') {
+                        loginModal.style.display = 'none'; // מסתיר את חלונית ההתחברות
+                    } else if (profileModal.style.display === 'block') {
+                        profileModal.style.display = 'none'; // מסתיר את חלונית הפרופיל
+                    }
+                });
             });
 
-            closeModal.addEventListener('click', () => {
-                modal.style.display = 'none'; // סגירת החלונית
-            });
+            // התחברות: שליחת פרטים לשרת
+            document.getElementById('login-button').addEventListener('click', function () {
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
 
-            window.addEventListener('click', (event) => {
-                if (event.target === modal) {
-                    modal.style.display = 'none'; // סגירה בלחיצה מחוץ לחלונית
+                if (!username || !password) {
+                    alert('Please enter both username and password.');
+                    return;
                 }
+
+                fetch('/Login/Verify_Login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password }) // שולח את הנתונים לשרת
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            alert('Login successful!');
+                            document.getElementById('login-modal').style.display = 'none'; // מסתיר את חלונית ההתחברות
+                            document.getElementById('profile-modal').style.display = 'block'; // מציג את חלונית הפרופיל
+                            document.getElementById('welcome-message').textContent = `Welcome, ${data.username}`;
+                        } else {
+                            alert(data.message || 'Invalid username or password.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error during login:', error);
+                        alert('An error occurred while trying to log in.');
+                    });
             });
 
-            const checkoutLink = document.getElementById('checkout-link');
+            // Logout: מחיקת קוקי והחזרה לדף ההתחברות
+            document.getElementById('logout-button').addEventListener('click', function () {
+                fetch('/Login/Logout', { method: 'POST' })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json(); // קבלת תשובה מהשרת
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            alert('Logged out successfully.');
 
-            checkoutLink.addEventListener('click', (event) => {
-                event.preventDefault(); // מונע מעבר מיידי
-                const confirmExit = confirm("Are you sure you want to leave the site?");
-                if (confirmExit) {
-                    window.location.href = '/Order/Checkout'; // מעביר לדף היציאה
-                }
+                            // עדכון הממשק לאחר ההתנתקות
+                            document.getElementById('login-modal').style.display = 'block'; // מציג את חלונית ההתחברות
+                            document.getElementById('profile-modal').style.display = 'none'; // מסתיר את חלונית הפרופיל
+
+                            // בדיקה מחודשת אם המשתמש מחובר (לא חובה, אבל מומלץ לאימות)
+                            fetch('/Login/IsUserLoggedIn', {
+                                method: 'GET',
+                                headers: { 'Content-Type': 'application/json' }
+                            })
+                                .then(response => response.json())
+                                .then(statusData => {
+                                    if (!statusData.isLoggedIn) {
+                                        // וידוא שהמשתמש לא מחובר ומחזירים אותו לחלונית התחברות
+                                        document.getElementById('login-modal').style.display = 'block';
+                                        document.getElementById('profile-modal').style.display = 'none';
+                                    } else {
+                                        console.error('Unexpected: User still logged in after logout.');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error during re-checking login status:', error);
+                                });
+                        } else {
+                            alert('Logout failed. Please try again.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error during logout:', error);
+                        alert('An error occurred while trying to log out.');
+                    });
             });
         </script>
     </body>

@@ -17,7 +17,20 @@ namespace ELibrary.Controllers
         // GET: Profile
         public ActionResult UserProfile()
         {
-            return View();
+            var model = new User_Profile_info();
+            HttpCookie userCookie = Request.Cookies["Username"];
+            if (userCookie != null)
+            {
+                model = new User_Profile_info()
+                {
+                    user = userCookie.Value,
+                    reviews = GetReviews(userCookie.Value),
+                    personal_books = GetPersonalBooks(userCookie.Value),
+                    waiting_lists = GetWaitingLists(userCookie.Value),
+                    UserLibrary = GetUserLibrary(userCookie.Value)
+                };
+            }
+            return View(model);
         }
 
         public ActionResult AdminProfile() { return View(); }
@@ -49,10 +62,9 @@ namespace ELibrary.Controllers
             return View();
         }
 
-        public ActionResult GetReviews(Users currentUser)
+        public List<Reviews> GetReviews(string currentUser)
         {
             List<Reviews> Reviews_list = new List<Reviews>();
-            List<Books> Books_list = new List<Books>();
             using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
                 System.Diagnostics.Debug.WriteLine("Connection String: " + connection.Database); //check connection to db
@@ -60,7 +72,7 @@ namespace ELibrary.Controllers
                 string sqlQuery = "SELECT * FROM Reviews WHERE Username = @Username";
                 using (SqlCommand commend = new SqlCommand(sqlQuery, connection))
                 {
-                    commend.Parameters.AddWithValue("@Username", currentUser.Username);
+                    commend.Parameters.AddWithValue("@Username", currentUser);
                     SqlDataReader reader = commend.ExecuteReader();
                     while (reader.Read())
                     {
@@ -74,32 +86,6 @@ namespace ELibrary.Controllers
                                 Info = reader.GetString(3)
                             };
                             Reviews_list.Add(review);
-                            //to get a book according to user
-                            string sqlQuery_2 = "SELECT * FROM Books WHERE ISBN = @ISBN";
-                            using (SqlCommand commend2 = new SqlCommand(sqlQuery_2, connection))
-                            {
-                                commend2.Parameters.AddWithValue("@ISBN", review.ISBN);
-                                SqlDataReader reader2 = commend2.ExecuteReader();
-                                while (reader.Read())
-                                {
-                                    Books book = new Books
-                                    {
-                                        ISBN = reader2.GetString(0),
-                                        Title = reader2.GetString(1),
-                                        Authors = reader2.GetString(2),
-                                        Price = reader2.GetDouble(3),
-                                        PriceDecrease = reader2.IsDBNull(4) ? 0 : reader2.GetInt32(4),
-                                        Cover = reader2.GetString(5),
-                                        Publisher = reader2.GetString(6),
-                                        PublishYear = reader2.GetDateTime(7),
-                                        Genre = reader2.GetString(8),
-                                        IsBuyOnly = reader2.GetBoolean(9),
-                                        Desrip = reader2.IsDBNull(10) ? string.Empty : reader2.GetString(10)
-                                    };
-                                    Books_list.Add(book);
-                                }
-                                reader2.Close();
-                            }
                         }
                         catch (Exception ex) { Console.WriteLine($"Error reading data: {ex.Message}"); }
                     }
@@ -112,29 +98,20 @@ namespace ELibrary.Controllers
                 System.Diagnostics.Debug.WriteLine("Reviews list  is null or empty.");
             }
             System.Diagnostics.Debug.WriteLine("All Reviews Count: " + Reviews_list.Count);
-
-            var model = new User_Profile_info()
-            {
-                user = currentUser,
-                reviews = Reviews_list,
-                books = Books_list,
-                waiting_lists = null,
-                profile_library = null
-            };
-            return PartialView(model);
+            return Reviews_list;
         }
 
-        public List<Books> GetPersonalBooks(Users currentUser) 
+        public List<Books> GetPersonalBooks(string currentUser) 
         {
             List<Books> Personal_books = new List<Books>();
             using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
                 System.Diagnostics.Debug.WriteLine("Connection String: " + connection.Database); //check connection to db
                 connection.Open();
-                string sqlQuery = "SELECT * FROM User_Library, Book WHERE Username = @Username AND User_Library.ISBN = Book.ISBN";
+                string sqlQuery = "SELECT * FROM User_Library, Book WHERE User_Library.Username = @Username AND User_Library.ISBN = Book.ISBN";
                 using (SqlCommand commend = new SqlCommand(sqlQuery, connection))
                 {
-                    commend.Parameters.AddWithValue("@Username", currentUser.Username);
+                    commend.Parameters.AddWithValue("@Username", currentUser);
                     SqlDataReader reader = commend.ExecuteReader();
                     while (reader.Read())
                     {
@@ -169,5 +146,82 @@ namespace ELibrary.Controllers
             System.Diagnostics.Debug.WriteLine("All Books Count: " + Personal_books.Count);
             return Personal_books;
         } 
+
+        public List<WaitingLine> GetWaitingLists(string currentUser) 
+        {
+            List<WaitingLine> waitingLines = new List<WaitingLine>();
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                System.Diagnostics.Debug.WriteLine("Connection String: " + connection.Database); //check connection to db
+                connection.Open();
+                string sqlQuery = "SELECT * FROM WaitingLine WHERE Username = @Username";
+                using (SqlCommand commend = new SqlCommand(sqlQuery, connection))
+                {
+                    commend.Parameters.AddWithValue("@Username", currentUser);
+                    SqlDataReader reader = commend.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        try
+                        {
+                            WaitingLine line = new WaitingLine
+                            {
+                                ISBN = reader.GetString(0),
+                                Username = reader.GetString(1),
+                                PlaceInLine = reader.GetInt32(2)
+                            };
+                            waitingLines.Add(line);
+                        }
+                        catch (Exception ex) { Console.WriteLine($"Error reading data: {ex.Message}"); }
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            if (waitingLines == null || waitingLines.Count == 0)
+            {
+                System.Diagnostics.Debug.WriteLine("waitingLines is null or empty.");
+            }
+            System.Diagnostics.Debug.WriteLine("All lines Count: " + waitingLines.Count);
+            return waitingLines;
+        }
+
+        public List<User_Library> GetUserLibrary(string currentUser) 
+        {
+            List<User_Library> user_Libraries = new List<User_Library>();
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                System.Diagnostics.Debug.WriteLine("Connection String: " + connection.Database); //check connection to db
+                connection.Open();
+                string sqlQuery = "SELECT * FROM User_Library WHERE Username = @Username";
+                using (SqlCommand commend = new SqlCommand(sqlQuery, connection))
+                {
+                    commend.Parameters.AddWithValue("@Username", currentUser);
+                    SqlDataReader reader = commend.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        try
+                        {
+                            User_Library book = new User_Library
+                            {
+                                ISBN = reader.GetString(0),
+                                Username = reader.GetString(1),
+                                IsBorrowed = reader.GetBoolean(2),
+                                TimeBorrowed = reader.GetDateTime(3)
+                            };
+                            user_Libraries.Add(book);
+                        }
+                        catch (Exception ex) { Console.WriteLine($"Error reading data: {ex.Message}"); }
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            if (user_Libraries == null || user_Libraries.Count == 0)
+            {
+                System.Diagnostics.Debug.WriteLine("user_Libraries is null or empty.");
+            }
+            System.Diagnostics.Debug.WriteLine("All books Count: " + user_Libraries.Count);
+            return user_Libraries;
+        }
     }
 }

@@ -31,10 +31,10 @@ namespace ELibrary.Models
 
     public class User_Profile_info
     {
-        public Users user { get; set; }
+        public string user { get; set; }
         public List<Reviews> reviews { get; set; }
-        public List<Books> books { get; set; }
+        public List<Books> personal_books { get; set; }
         public List<WaitingLine> waiting_lists { get; set; }
-        public List<User_Library> profile_library { get; set; }
+        public List<User_Library> UserLibrary { get; set; }
     }
 }
