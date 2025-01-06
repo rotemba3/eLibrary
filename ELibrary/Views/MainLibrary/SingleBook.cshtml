@@ -1,6 +1,6 @@
 ﻿@model ELibrary.Models.Book_and_Reviews
 @{
-    Layout = null;
+    Layout = "~/Views/Shared/NavBar.cshtml";
 }
 
 <!DOCTYPE html>
@@ -8,7 +8,42 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/Content/SingleBook_Style.css" /> <!-- הוספת קובץ CSS -->
     <title>SingleBook</title>
+    <style>
+        /* כפתורים */
+        .Buy&Borrow-Button {
+            margin-top: 15px;
+        }
+
+        .signup-btn {
+            background: #6a11cb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+            .signup-btn:hover {
+                background: #4a0da9;
+            }
+
+        /* עיצוב קישור */
+        .Title-link {
+            text-decoration: none;
+            color: #6a11cb;
+            font-weight: bold;
+        }
+
+            .Title-link:hover {
+                text-decoration: underline;
+                color: #4a0da9;
+            }
+    </style>
 </head>
 <body>
     <div id="Book-info" class="popup-book">
