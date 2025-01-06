@@ -21,24 +21,33 @@
             foreach (var book in Model.personal_books)
             {
                 <div class="review-item">
-                    <p><strong>Title:</strong>@book.Title/5</p>
+                    <p><strong>Title:</strong>@book.Title</p>
                     <p><strong>Authors:</strong>@book.Authors</p>
                     <p>@book.Cover</p>
                     @if (book.IsBuyOnly == false)
                     {
-                        foreach (var borrow in Model.UserLibrary) 
+                        foreach (var borrow in Model.UserLibrary)
                         {
-                            var date_diff = DateTime.Now - borrow.TimeBorrowed;
-                            var days = date_diff.Days;
-                            var hours = date_diff.Hours;
-                            <p>Time left: @days.ToString():@hours.ToString()</p>
+                            if (book.ISBN == borrow.ISBN)
+                            {
+                                var date_diff = DateTime.Now - borrow.TimeBorrowed;
+                                var days = date_diff.Days;
+                                if (days < 30)
+                                {
+                                    days = 30 - days;
+                                    <p>Time left: @days.ToString() days</p>
+                                }
+                                else
+                                { <p>current book is no longer available.</p>}
+                            }
                         }
                     }
+                    <button class="delete-book">Delete</button>
                 </div>
             }
         }
         else
-        { <p>No reviews avalible.</p>}
+        { <p>No reviews avalible.</p> }
     </section>
 
     <section class="Reviews-section">

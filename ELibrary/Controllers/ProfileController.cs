@@ -108,7 +108,7 @@ namespace ELibrary.Controllers
             {
                 System.Diagnostics.Debug.WriteLine("Connection String: " + connection.Database); //check connection to db
                 connection.Open();
-                string sqlQuery = "SELECT * FROM User_Library, Book WHERE User_Library.Username = @Username AND User_Library.ISBN = Book.ISBN";
+                string sqlQuery = "SELECT Book.ISBN, Book.Title, Book.Authors, Book.Price, Book.PriceDecrease,Book.Cover, Book.Publisher, Book.PublishYear, Book.Genre, Book.IsBuyOnly, Book.Desrip FROM Book INNER JOIN User_Library ON User_Library.ISBN = Book.ISBN WHERE User_Library.Username = @Username";
                 using (SqlCommand commend = new SqlCommand(sqlQuery, connection))
                 {
                     commend.Parameters.AddWithValue("@Username", currentUser);
@@ -203,8 +203,8 @@ namespace ELibrary.Controllers
                         {
                             User_Library book = new User_Library
                             {
-                                ISBN = reader.GetString(0),
-                                Username = reader.GetString(1),
+                                Username = reader.GetString(0),
+                                ISBN = reader.GetString(1),
                                 IsBorrowed = reader.GetBoolean(2),
                                 TimeBorrowed = reader.GetDateTime(3)
                             };
