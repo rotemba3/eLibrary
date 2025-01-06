@@ -1,0 +1,39 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>VerifyCode</title>
+</head>
+<body>
+    <form id="verifyCodeForm">
+        <h2>Verify Code</h2>
+        <input type="number" id="code" placeholder="Enter the code" required />
+        <button type="submit">Verify</button>
+    </form>
+    <div id="message"></div>
+    <script>
+        document.getElementById('verifyCodeForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const code = document.getElementById('code').value;
+        fetch('/Login/VerifyCode', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code })
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('message').innerText = data.message;
+                if (data.success) {
+                    window.location.href = '/Login/Reset_Password'; // מעבר לדף שינוי סיסמה
+                }
+            });
+        });
+    </script>
+</body>
+</html>

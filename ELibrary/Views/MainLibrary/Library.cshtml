@@ -8,38 +8,166 @@
     <meta name="viewport" content="width=device-width" />
     <title>Library</title>
     <link rel="stylesheet" href="~\Content\Library_Style.css" /> <!-- הוספת קובץ CSS -->
+    <style>
+
+
+        /* כפתורים */
+        .Buy&Borrow-Button {
+            margin-top: 15px;
+        }
+
+        .signup-btn {
+            background: #6a11cb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+            .signup-btn:hover {
+                background: #4a0da9;
+            }
+
+        /* עיצוב קישור */
+        .Title-link {
+            text-decoration: none;
+            color: #6a11cb;
+            font-weight: bold;
+        }
+
+            .Title-link:hover {
+                text-decoration: underline;
+                color: #4a0da9;
+            }
+    </style>
 </head>
 <body>
-    <div class="introduction">
-        <h1>Welcome to our library!</h1>
-        <h3>Using our site, you can buy and borrow books of your choosing</h3>
-    </div>
-    <div class="book-list">
-        @if (Model != null && Model.Any())
-        {
-            foreach (var book in Model)
+    <div class="container">
+        <div class="introduction">
+            <h1>Welcome to our library!</h1>
+            <h3>Using our site, you can buy and borrow books of your choosing</h3>
+        </div>
+        <div class="search-bar">
+            <input id="search-input" type="text" placeholder="Search by title ..." />
+            <select id="filter-by" class="filter-select">
+                <option value="all">All</option>
+                <option value="price">Price High</option>
+                <option value="price">Price Low</option>
+                <option value="popularity">Popularity</option>
+                <option value="year">Release Year</option>
+                <option value="genre">Genre</option>
+            </select>
+            <select id="genre-options" class="filter-select" style="display: none;">
+                <option value="fantasy">Fantasy</option>
+                <option value="sci-fi">Sci-fi</option>
+                <option value="romance">Romance</option>
+                <option value="non-fiction">Non-Fiction</option>
+                <option value="horror">Horror</option>
+            </select>
+            <button id="search-button" class="search-button">🔍</button>
+        </div>
+        <div class="book-list">
+            @if (Model != null && Model.Any())
             {
-                <div class="book-item">
-                    <h3>@Html.ActionLink(book.Title, "SingleBook", "MainLibrary", new { ISBN = book.ISBN }, new { @class = "Title-link" })</h3>
-                    <p>Author: @book.Authors</p>
-                    @if (book.PriceDecrease > 0) //there is a sale
-                    {
-                        <p>Price: ₪<del>@book.Price</del> @(book.Price - (book.Price * (book.PriceDecrease * 0.01)))</p>
-                    }
-                    else
-                    { <p>Price: ₪@book.Price</p>}
-                    <p>Genre: @book.Genre</p>
-                    <p>Description: @book.Desrip</p> <!--does not need to buy here-->
-                </div>
-                <div class="Buy&Borrow-Button">
-                    <button type="submit" class="signup-btn">Buy</button>
-                    @if (book.IsBuyOnly == false)
-                    {<button type="submit" class="signup-btn">Borrow</button>}
-                </div>
+                foreach (var book in Model)
+                {
+                    <div class="book-item">
+                        <h3>@Html.ActionLink(book.Title, "SingleBook", "MainLibrary", new { ISBN = book.ISBN }, new { @class = "Title-link" })</h3>
+                        <p>Author: @book.Authors</p>
+                        @if (book.PriceDecrease > 0) //there is a sale
+                        {
+                            <p>Price: ₪<del>@book.Price</del> @(book.Price - (book.Price * (book.PriceDecrease * 0.01)))</p>
+                        }
+                        else
+                        { <p>Price: ₪@book.Price</p>}
+                        <p>Genre: @book.Genre</p>
+                        <p>Description: @book.Desrip</p> <!--does not need to buy here-->
+                    </div>
+                    <div class="Buy&Borrow-Button">
+                        <button type="submit" class="signup-btn">Buy</button>
+                        @if (book.IsBuyOnly == false)
+                        {<button type="submit" class="signup-btn">Borrow</button>}
+                    </div>
+                }
             }
-        }
-        else
-        { <p> The Library is empty.</p>}
+            else
+            { <p> The Library is empty.</p>}
+        </div>
     </div>
+    <script>
+
+                // מנוע החיפוש והקטגוריות
+                document.addEventListener('DOMContentLoaded', function () {
+                    const filterBy = document.getElementById('filter-by');
+                    const genreOptions = document.getElementById('genre-options');
+                    const searchButton = document.getElementById('search-button');
+                    const searchInput = document.getElementById('search-input');
+                    const bookListContainer = document.querySelector('.book-list');
+
+                    console.log('searchInput:', searchInput);
+
+                    // הצגת/הסתרת תפריט הז'אנרים
+                    filterBy.addEventListener('change', function () {
+                        if (filterBy.value === 'genre') {
+                            genreOptions.style.display = 'inline-block'; // הצגת התפריט
+                        } else {
+                            genreOptions.style.display = 'none'; // הסתרת התפריט
+                        }
+                    });
+
+                    // לחיצה על כפתור החיפוש
+                    searchButton.addEventListener('click', function () {
+                        const searchQuery = searchInput.value.trim();
+                        const filter = filterBy.value;
+                        const genre = genreOptions.value;
+
+                        console.log('Search Query:', searchQuery);
+
+                        // שליחת בקשת חיפוש לשרת
+                        fetch(`/MainLibrary/FilterBooks?query=${encodeURIComponent(searchQuery)}&filterBy=${filter}&genre=${genre}`)
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                bookListContainer.innerHTML = ''; // נקה את התוכן הישן
+
+                                if (data.length === 0) {
+                                    bookListContainer.innerHTML = '<p>No books found.</p>';
+                                    return;
+                                }
+
+                                // הוספת ספרים
+                                data.forEach(book => {
+                                    const bookItem = `
+                                        <div class="book-item">
+                                            <h3>${book.Title}</h3>
+                                            <p>Author: ${book.Authors}</p>
+                                            <p>Price: ₪${book.Price}</p>
+                                            <p>Genre: ${book.Genre}</p>
+                                            <p>Description: ${book.Desrip}</p>
+                                            <div class="Buy&Borrow-Button">
+                                                <button type="submit" class="signup-btn">Buy</button>
+                                                ${!book.IsBuyOnly ? '<button type="submit" class="signup-btn">Borrow</button>' : ''}
+                                            </div>
+                                        </div>
+                                     `;
+                                    bookListContainer.innerHTML += bookItem;
+                                });
+                            })
+                            .catch(error => {
+                                console.error('Error fetching books:', error);
+                                bookListContainer.innerHTML = '<p style="color: red;">Error fetching books. Please try again later.</p>';
+                            });
+                    });
+                });
+
+    </script>
 </body>
-</html> 
+</html>

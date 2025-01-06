@@ -79,7 +79,7 @@ namespace ELibrary.Controllers
                 string sqlQuery = "SELECT Title, Authors, Cover FROM Book WHERE Title LIKE @Query OR Authors LIKE @Query";
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
-                    command.Parameters.AddWithValue("@Query", $"%{query}%"); // Use parameterized query to prevent SQL injection
+                    command.Parameters.AddWithValue("@Query", $"%{query}%"); // חיפוש בטוח מ-SQL Injection
                     SqlDataReader reader = command.ExecuteReader();
 
                     while (reader.Read())
@@ -93,7 +93,7 @@ namespace ELibrary.Controllers
                     }
                 }
             }
-            return Json(foundBooks.Take(10), JsonRequestBehavior.AllowGet); // Limit results to 10 for performance
+            return Json(foundBooks.Take(10), JsonRequestBehavior.AllowGet); // הגבלת התוצאות ל-10
         }
 
     }

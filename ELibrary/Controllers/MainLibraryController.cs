@@ -146,5 +146,74 @@ namespace ELibrary.Controllers
         }
 
         public ActionResult CheckOut() { return View(); }
+
+        // סינון לפי הנתונים של מנוע החיפוש
+        [HttpGet]
+        public JsonResult FilterBooks(string query, string filterBy, string genre)
+        {
+            var books = GetAllBooks();
+            // חיפוש לפי הקלט של המשתמש
+            if (!string.IsNullOrEmpty(query))
+            {
+                books = books.Where(book =>
+                     book.Title.ToLower().Contains(query.ToLower()) ||
+                     book.Authors.ToLower().Contains(query.ToLower())
+                ).ToList();
+            }
+
+            // סינון לפי הפילטרים שנבחרו
+            if (filterBy == "price")
+            {
+                books = books.OrderByDescending(book => book.Price).ToList();
+            }
+            else if (filterBy == "year")
+            {
+                books = books.OrderByDescending(book => book.PublishYear).ToList();
+            }
+            else if (filterBy == "genre" && !string.IsNullOrEmpty(genre))
+            {
+                books = books.Where(book => book.Genre.Equals(genre, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            return Json(books, JsonRequestBehavior.AllowGet);
+        }
+
+        // פונקציה שנותנת את הספרים
+        public List<Books> GetAllBooks()
+        {
+            List<Books> allBooks = new List<Books>();
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string sqlQuery = @"
+            SELECT b.ISBN, b.Title, b.Authors, b.Price, b.PriceDecrease, b.Cover, 
+                   b.Publisher, b.PublishYear, b.Genre, b.IsBuyOnly, b.Desrip,
+                   (SELECT COUNT(*) FROM Reviews r WHERE r.ISBN = b.ISBN) AS ReviewsCount
+            FROM Book b";
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        allBooks.Add(new Books
+                        {
+                            ISBN = reader.GetString(0),
+                            Title = reader.GetString(1),
+                            Authors = reader.GetString(2),
+                            Price = reader.GetDouble(3),
+                            PriceDecrease = (!reader.IsDBNull(4) ? reader.GetInt32(4) : 0),
+                            Cover = reader.GetString(5),
+                            Publisher = reader.GetString(6),
+                            PublishYear = reader.GetDateTime(7),
+                            Genre = reader.GetString(8),
+                            IsBuyOnly = reader.GetBoolean(9),
+                            Desrip = (!reader.IsDBNull(10) ? reader.GetString(10) : string.Empty),
+                            ReviewsCount = reader.GetInt32(11) // מספר הביקורות מחושב דינמית
+                        });
+                    }
+                }
+            }
+            return allBooks;
+        }
     }
 }

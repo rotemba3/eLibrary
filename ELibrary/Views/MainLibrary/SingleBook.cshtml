@@ -14,10 +14,13 @@
     <div id="Book-info" class="popup-book">
         <h3>Book Info</h3>
         <h2>@Model.book.Title</h2>
+        <p>@Model.book.Cover</p>
         <p>Author: @Model.book.Authors</p>
         <p>Genre: @Model.book.Genre</p>
+        <p>Publisher: @Model.book.Publisher</p>
+        <p>Published year: @Model.book.PublishYear</p>
         @if (@Model.book.PriceDecrease > 0) //there is a sale
-        {
+        { 
             <p>Price: ₪<del>@Model.book.Price</del> @(Model.book.Price - (Model.book.Price * (Model.book.PriceDecrease * 0.01)))</p>
         }
         else
