@@ -86,91 +86,125 @@
                         <p>Description: @book.Desrip</p> <!--does not need to buy here-->
                     </div>
                     <div class="Buy&Borrow-Button">
-                        <button type="submit" class="signup-btn">Add to cart</button>
+                        <button type="button" class="signup-btn buy-button" data-isbn="@book.ISBN">Buy</button>
                         @if (book.IsBuyOnly == false)
-                        {<button type="submit" class="signup-btn">Borrow</button>}
+                        {<button type="button" class="signup-btn borrow-button" data-isbn="@book.ISBN">Borrow</button>}
                     </div>
                 }
             }
             else
-            { <p> The Library is empty.</p>}
+            { <p> The Library is empty.</p>}9
+            ]
         </div>
     </div>
     <script>
 
-                // מנוע החיפוש והקטגוריות
-                document.addEventListener('DOMContentLoaded', function () {
-                    const filterBy = document.getElementById('filter-by');
-                    const genreOptions = document.getElementById('genre-options');
-                    const searchButton = document.getElementById('search-button');
-                    const searchInput = document.getElementById('search-input');
-                    const bookListContainer = document.querySelector('.book-list');
+        // מנוע החיפוש והקטגוריות
+        document.addEventListener('DOMContentLoaded', function () {
+            const filterBy = document.getElementById('filter-by');
+            const genreOptions = document.getElementById('genre-options');
+            const searchButton = document.getElementById('search-button');
+            const searchInput = document.getElementById('search-input');
+            const bookListContainer = document.querySelector('.book-list');
 
-                    console.log('searchInput:', searchInput);
+            console.log('searchInput:', searchInput);
 
-                    // הצגת/הסתרת תפריט הז'אנרים
-                    filterBy.addEventListener('change', function () {
-                        if (filterBy.value === 'genre') {
-                            genreOptions.style.display = 'inline-block'; // הצגת התפריט
-                        } else {
-                            genreOptions.style.display = 'none'; // הסתרת התפריט
+            // הצגת/הסתרת תפריט הז'אנרים
+            filterBy.addEventListener('change', function () {
+                if (filterBy.value === 'genre') {
+                    genreOptions.style.display = 'inline-block'; // הצגת התפריט
+                } else {
+                    genreOptions.style.display = 'none'; // הסתרת התפריט
+                }
+            });
+
+            // לחיצה על כפתור החיפוש
+            searchButton.addEventListener('click', function () {
+                const searchQuery = searchInput.value.trim();
+                const filter = filterBy.value;
+                const genre = genreOptions.value;
+
+                console.log('Search Query:', searchQuery);
+
+                // שליחת בקשת חיפוש לשרת
+                fetch(`/MainLibrary/FilterBooks?query=${encodeURIComponent(searchQuery)}&filterBy=${filter}&genre=${genre}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
                         }
-                    });
+                        return response.json();
+                    })
+                    .then(data => {
+                        bookListContainer.innerHTML = ''; // נקה את התוכן הישן
 
-                    // לחיצה על כפתור החיפוש
-                    searchButton.addEventListener('click', function () {
-                        const searchQuery = searchInput.value.trim();
-                        const filter = filterBy.value;
-                        const genre = genreOptions.value;
+                        if (data.length === 0) {
+                            bookListContainer.innerHTML = '<p>No books found.</p>';
+                            return;
+                        }
 
-                        console.log('Search Query:', searchQuery);
+                        // הוספת ספרים
+                        data.forEach(book => {
+                            const discountedPrice = book.Price - (book.Price * (book.PriceDecrease * 0.01));
+                            const priceContent = book.PriceDecrease > 0
+                                ? `<p>Price: ₪<del>${book.Price}</del> ${discountedPrice.toFixed(2)}</p>`
+                                : `<p>Price: ₪${book.Price}</p>`;
 
-                        // שליחת בקשת חיפוש לשרת
-                        fetch(`/MainLibrary/FilterBooks?query=${encodeURIComponent(searchQuery)}&filterBy=${filter}&genre=${genre}`)
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error('Network response was not ok');
-                                }
-                                return response.json();
-                            })
-                            .then(data => {
-                                bookListContainer.innerHTML = ''; // נקה את התוכן הישן
-
-                                if (data.length === 0) {
-                                    bookListContainer.innerHTML = '<p>No books found.</p>';
-                                    return;
-                                }
-
-                                // הוספת ספרים
-                                data.forEach(book => {
-                                    const discountedPrice = book.Price - (book.Price * (book.PriceDecrease * 0.01));
-                                    const priceContent = book.PriceDecrease > 0
-                                        ? `<p>Price: ₪<del>${book.Price}</del> ${discountedPrice.toFixed(2)}</p>`
-                                        : `<p>Price: ₪${book.Price}</p>`;
-
-                                    const bookItem = `
-                        <div class="book-item">
-                            <h3>${book.Title}</h3>
-                            <p>Author: ${book.Authors}</p>
-                            ${priceContent}
-                            <p>Genre: ${book.Genre}</p>
-                            <p>Description: ${book.Desrip}</p>
-                            <div class="Buy&Borrow-Button">
-                                <button type="submit" class="signup-btn">Buy</button>
-                                ${!book.IsBuyOnly ? '<button type="submit" class="signup-btn">Borrow</button>' : ''}
+                            const bookItem = `
+                            <div class="book-item">
+                                <h3>${book.Title}</h3>
+                                <p>Author: ${book.Authors}</p>
+                                ${priceContent}
+                                <p>Genre: ${book.Genre}</p>
+                                <p>Description: ${book.Desrip}</p>
+                                <div class="Buy&Borrow-Button">
+                                    <button type="submit" class="signup-btn">Buy</button>
+                                    ${!book.IsBuyOnly ? '<button type="submit" class="signup-btn">Borrow</button>' : ''}
+                                </div>
                             </div>
-                        </div>
-                                     `;
-                                    bookListContainer.innerHTML += bookItem;
-                                });
-                            })
-                            .catch(error => {
-                                console.error('Error fetching books:', error);
-                                bookListContainer.innerHTML = '<p style="color: red;">Error fetching books. Please try again later.</p>';
-                            });
+                                         `;
+                            bookListContainer.innerHTML += bookItem;
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching books:', error);
+                        bookListContainer.innerHTML = '<p style="color: red;">Error fetching books. Please try again later.</p>';
                     });
-                });
-
+            });
+        });
     </script>
+    <script> //for add to cart
+        document.addEventListener('DOMContentLoaded', function () {
+            const buyButtons = document.querySelectorAll('.buy-button');
+
+            buyButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const isbn = button.getAttribute('data-isbn');
+
+                    fetch('/MainLibrary/AddToCart', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('input[name="__RequestVerificationToken"]').value // Include CSRF token if needed
+                        },
+                        body: JSON.stringify({ isbn: isbn })
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Failed to add to cart.');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            alert(data.message || 'Book added to cart!');
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('There was an error adding the book to the cart. Please try again.');
+                        });
+                });
+            });
+        });
+    </script>
+
 </body>
 </html>

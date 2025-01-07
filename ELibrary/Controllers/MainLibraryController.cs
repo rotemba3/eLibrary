@@ -215,5 +215,21 @@ namespace ELibrary.Controllers
             }
             return allBooks;
         }
+
+        [HttpPost]
+        public JsonResult AddToCart(string ISBN)
+        {
+            // Retrieve the cart from the session or create a new one
+            List<string> cart = Session["Cart"] as List<string> ?? new List<string>();
+
+            // Add the book's ISBN to the cart
+            cart.Add(ISBN);
+
+            // Save the updated cart back to the session
+            Session["Cart"] = cart;
+
+            return Json(new { success = true, message = "Book added to the cart." });
+        }
+
     }
 }
