@@ -1,6 +1,6 @@
 ﻿@model ELibrary.Models.Users
 @{
-    Layout = null;
+    Layout = "~/Views/Shared/NavBar.cshtml";
 }
 
 <!DOCTYPE html>
@@ -9,10 +9,181 @@
 <head>
     <meta name="viewport" content="width=device-width" />
     <title>AdminProfile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            background-color: #6a0dad;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        h2 {
+            color: #6a0dad;
+        }
+
+        div {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        section {
+            margin-bottom: 20px;
+        }
+
+        form {
+            margin-top: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: #6a0dad;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+            button:hover {
+                background-color: #5a009d;
+            }
+    </style>
 </head>
 <body>
     <div>
+        <h1>Admin Dashboard</h1>
 
+        <!-- Add/Remove Books -->
+        <section>
+            <h2>Add or Remove Books</h2>
+            <form method="post" action="/Profile/AddBook">
+                <label for="isbn">ISBN:</label>
+                <input type="text" id="isbn" name="isbn" required />
+
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" required />
+
+                <label for="authors">Authors:</label>
+                <input type="text" id="authors" name="authors" required />
+
+                <label for="price">Price:</label>
+                <input type="number" id="price" name="price" required />
+
+                <label for="priceDecrease">Price Decrease (%):</label>
+                <input type="number" id="priceDecrease" name="priceDecrease" />
+
+                <label for="cover">Cover (URL):</label>
+                <input type="text" id="cover" name="cover" />
+
+                <label for="publisher">Publisher:</label>
+                <input type="text" id="publisher" name="publisher" required />
+
+                <label for="publisherYear">Publisher Year:</label>
+                <input type="date" id="publisherYear" name="publisherYear" required />
+
+                <label for="genre">Genre:</label>
+                <input type="text" id="genre" name="genre" required />
+
+                <label for="isBuyOnly">Is Buy Only:</label>
+                <select id="isBuyOnly" name="isBuyOnly" required>
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+
+                <label for="derip">Description:</label>
+                <input type="text" id="derip" name="derip" />
+
+                <button type="submit">Add Book</button>
+            </form>
+
+            <h2>Remove a Book</h2>
+            <form method="post" action="/Profile/RemoveBook">
+                <label for="removeIsbn">ISBN:</label>
+                <input type="text" id="removeIsbn" name="isbn" required />
+                <button type="submit">Remove Book</button>
+            </form>
+        </section>
+
+        <!-- Update Prices and Promotions -->
+        <section>
+            <h2>Update Prices and Promotions</h2>
+            <form method="post" action="/Admin/UpdatePrice">
+                <label for="bookIdPrice">Book ID:</label>
+                <input type="text" id="bookIdPrice" name="bookId" required />
+                <label for="newPrice">New Price:</label>
+                <input type="number" id="newPrice" name="newPrice" required />
+                <button type="submit">Update Price</button>
+            </form>
+
+            <form method="post" action="/Admin/AddPromotion">
+                <label for="promoBookId">Book ID:</label>
+                <input type="text" id="promoBookId" name="bookId" required />
+                <label for="discount">Discount (%):</label>
+                <input type="number" id="discount" name="discount" required />
+                <button type="submit">Add Promotion</button>
+            </form>
+        </section>
+
+        <!-- Manage Book List -->
+        <section>
+            <h2>Manage Book List</h2>
+            <form method="post" action="/Admin/UpdateBookList">
+                <label for="updatedList">Updated Book List (JSON):</label>
+                <textarea id="updatedList" name="updatedList" rows="5" required></textarea>
+                <button type="submit">Update Book List</button>
+            </form>
+        </section>
+
+        <!-- Notification for Due Date -->
+        <section>
+            <h2>Due Date Notifications</h2>
+            <p>System will automatically notify users 5 days before the due date of their borrowed books.</p>
+        </section>
+
+        <!-- Mark Book as Purchase Only -->
+        <section>
+            <h2>Mark Book as Purchase Only</h2>
+            <form method="post" action="/Admin/SetPurchaseOnly">
+                <label for="purchaseBookId">Book ID:</label>
+                <input type="text" id="purchaseBookId" name="bookId" required />
+                <button type="submit">Set as Purchase Only</button>
+            </form>
+        </section>
+
+        <!-- Manage Users -->
+        <section>
+            <h2>Manage Users</h2>
+            <form method="post" action="/Admin/ManageUsers">
+                <label for="userId">User ID:</label>
+                <input type="text" id="userId" name="userId" required />
+                <button type="submit">Manage User</button>
+            </form>
+        </section>
     </div>
 </body>
 </html>

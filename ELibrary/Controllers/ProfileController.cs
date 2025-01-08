@@ -40,7 +40,7 @@ namespace ELibrary.Controllers
             using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-                string sqlQuery = "INSERT INTO Book (ISBN, Title, Authors, Price, PriceDecrease, Cover, Publisher, PublishYear, Genre, IsBuyOnly, Desrip) VALUES (@ISBN, @Title, @Authors, @Price, @PriceDecrease, @Cover, @Publisher, @PublishYear, @Genre, @IsBuyOnly, @Desrip)";
+                string sqlQuery = "INSERT INTO Book (ISBN, Title, Authors, Price, PriceDecrease, Cover, Publisher, PublisherYear, Genre, IsBuyOnly, Derip) VALUES (@ISBN, @Title, @Authors, @Price, @PriceDecrease, @Cover, @Publisher, @PublisherYear, @Genre, @IsBuyOnly, @Derip)";
                 using (SqlCommand commend = new SqlCommand(sqlQuery, connection))
                 {
                     commend.Parameters.AddWithValue("@ISBN", book.ISBN);
@@ -50,16 +50,22 @@ namespace ELibrary.Controllers
                     commend.Parameters.AddWithValue("@PriceDecrease", book.PriceDecrease);
                     commend.Parameters.AddWithValue("@Cover", book.Cover);
                     commend.Parameters.AddWithValue("@Publisher", book.Publisher);
-                    commend.Parameters.AddWithValue("@PublishYear", book.PublishYear);
+                    commend.Parameters.AddWithValue("@PublisherYear", book.PublishYear);
                     commend.Parameters.AddWithValue("@Genre", book.Genre);
                     commend.Parameters.AddWithValue("@IsBuyOnly", book.IsBuyOnly);
-                    commend.Parameters.AddWithValue("@Desrip", book.Desrip);
+                    commend.Parameters.AddWithValue("@Derip", book.Desrip);
+                    //בדיקה אם הערך של היום תקין
+                    if (book.PublishYear < new DateTime(1753, 1, 1) || book.PublishYear > DateTime.Now)
+                    {
+                        throw new Exception("Invalid Publish Date. The date must be between 1753 and today.");
+                    }
 
                     commend.ExecuteNonQuery();
+                    TempData["SuccessMessage"] = "The book was successfully added!";
                 }
                 connection.Close();
             }
-            return View();
+            return View("AdminProfile");
         }
 
         public List<Reviews> GetReviews(string currentUser)
@@ -222,6 +228,22 @@ namespace ELibrary.Controllers
             }
             System.Diagnostics.Debug.WriteLine("All books Count: " + user_Libraries.Count);
             return user_Libraries;
+        }
+
+        public ActionResult RemoveBook(string ISBN) //Remove book from db
+        {
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string sqlQuery = "DELETE FROM Book WHERE ISBN = @ISBN";
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@ISBN", ISBN);
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
+            return RedirectToAction("AdminProfile");
         }
     }
 }

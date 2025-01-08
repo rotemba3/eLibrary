@@ -1,17 +1,99 @@
-﻿
+﻿@model IEnumerable<ELibrary.Models.Books>
 @{
     Layout = "~/Views/Shared/NavBar.cshtml";
+
+    // Retrieve cart and borrow cart from Session
+    var cartItems = Session["CartItems"] as List<ELibrary.Models.Books> ?? new List<ELibrary.Models.Books>();
+    var borrowItems = Session["BorrowItems"] as List<ELibrary.Models.Books> ?? new List<ELibrary.Models.Books>();
 }
 
 <!DOCTYPE html>
-
-<html>
+<html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="~\Content\Cart_Style.css" />
     <title>CheckOut</title>
 </head>
 <body>
-    <div> 
+    <div class="container">
+        <h1>Cart</h1>
+
+        <div class="cart-section">
+            <h2>Books to Buy</h2>
+            @if (cartItems.Count > 0)
+            {
+                <ul>
+                    @foreach (var book in cartItems)
+                    {
+                        if (book != null)
+                        {
+                            <li class="cart-item">
+                                <img src="@book.Cover" alt="@book.Title" class="book-cover" />
+                                <div class="book-details">
+                                    <h3>@book.Title</h3>
+                                    <p>Author: @book.Authors</p>
+                                    <p>
+                                        Price: ₪@(book.PriceDecrease > 0
+                                        ? book.Price - (book.Price * (book.PriceDecrease * 0.01))
+                                        : book.Price)
+                                    </p>
+                                </div>
+                                <form action="@Url.Action("RemoveFromCart", "MainLibrary")" method="post">
+                                    @Html.Hidden("ISBN", book.ISBN)
+                                    <button type="submit" class="remove-btn">Remove</button>
+                                </form>
+                            </li>
+                        }
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>Your buy cart is empty.</p>
+            }
+        </div>
+
+        <div class="borrow-section">
+            <h2>Books to Borrow</h2>
+            @if (borrowItems.Count > 0)
+            {
+                <ul>
+                    @foreach (var book in borrowItems)
+                    {
+                        if (book != null)
+                        {
+                            <li class="cart-item">
+                                <img src="@book.Cover" alt="@book.Title" class="book-cover" />
+                                <div class="book-details">
+                                    <h3>@book.Title</h3>
+                                    <p>Author: @book.Authors</p>
+                                    <p>
+                                        Price: ₪@(book.PriceDecrease > 0
+                                        ? book.Price - (book.Price * (book.PriceDecrease * 0.01))
+                                        : book.Price)
+                                    </p>
+                                </div>
+                                <form action="@Url.Action("RemoveFromBorrowCart", "MainLibrary")" method="post">
+                                    @Html.Hidden("ISBN", book.ISBN)
+                                    <button type="submit" class="remove-btn">Remove</button>
+                                </form>
+                            </li>
+                        }
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>Your borrow cart is empty.</p>
+            }
+            @if (cartItems.Count > 0 || borrowItems.Count > 0)
+            {
+                <form action="@Url.Action("checkout_books", "MainLibrary")" method="post">
+                    <button type="submit" class="checkout-btn">Proceed to Checkout</button>
+                </form>
+            }
+        </div>
     </div>
 </body>
 </html>

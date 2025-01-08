@@ -23,6 +23,22 @@ namespace ELibrary.Models
         public string Desrip { get; set; }
         public int ReviewsCount { get; set; } // מספר הביקורות מחושב מתוך Reviews
 
+
+        // Override Equals to compare ISBN
+        public override bool Equals(object obj)
+        {
+            if (obj is Books other)
+            {
+                return this.ISBN == other.ISBN;
+            }
+            return false;
+        }
+
+        // Override GetHashCode to align with Equals
+        public override int GetHashCode()
+        {
+            return ISBN.GetHashCode();
+        }
     }
 
     public class Reviews

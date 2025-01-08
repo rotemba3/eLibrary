@@ -8,12 +8,16 @@ using System.Net.Mail;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+//using Microsoft.Extensions.Options;
+//using Microsoft.Extensions.DependencyInjection;
+using System.Net.Configuration;
 
 namespace ELibrary.Controllers
 {
     public class LoginController : Controller
     {
         private readonly string ConnectionString = ConfigurationManager.ConnectionStrings["DefaultConnectionString_R"].ConnectionString;
+
 
         // GET: Login
         public ActionResult Login()
@@ -113,7 +117,6 @@ namespace ELibrary.Controllers
             // אם הקוקי לא קיים או אם שם המשתמש אינו נמצא בבסיס הנתונים
             return Json(new { isLoggedIn = false }, JsonRequestBehavior.AllowGet);
         }
-
         //כדי לבצע יציאה מחק את הקוקי גם כן מהשרת
         public ActionResult Logout()
         {
@@ -175,14 +178,48 @@ namespace ELibrary.Controllers
             ViewBag.Title = "Sign_Up";
             return View();
         }
-
+        //זה הלמטה שכחתי סיסמה 
         public ActionResult Forgot_password()
         {
             ViewBag.Title = "Forgot_password";
             return View();
         }
 
-        //כדי לשלוח את הקוד לאימייל לאחר שהמשתמש מזין את המייל 
+        private void SendEmail(string to, string subject, string body)
+        {
+
+            try
+            {
+                // Retrieve SMTP settings from web.config
+                var smtpSection = ConfigurationManager.GetSection("system.net/mailSettings/smtp") as SmtpSection;
+
+                if (smtpSection == null)
+                    throw new Exception("SMTP settings are missing in the web.config file.");
+
+                using (var client = new SmtpClient(smtpSection.Network.Host, smtpSection.Network.Port))
+                {
+                    client.Credentials = new NetworkCredential(smtpSection.Network.UserName, smtpSection.Network.Password);
+                    client.EnableSsl = smtpSection.Network.EnableSsl;
+
+                    var mailMessage = new MailMessage
+                    {
+                        From = new MailAddress(smtpSection.From),
+                        Subject = subject,
+                        Body = body,
+                        IsBodyHtml = true // Set to true if sending HTML content
+                    };
+
+                    mailMessage.To.Add(to);
+
+                    client.Send(mailMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log exception or handle as needed
+                throw new Exception("An error occurred while sending the email: " + ex.Message);
+            }
+        }
         [HttpPost]
         public JsonResult Forgot_Password(string email)
         {
@@ -220,11 +257,14 @@ namespace ELibrary.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in Forgot password: {ex.Message}");
+                Console.WriteLine($"Error in Forgot_password: {ex.Message}");
                 return Json(new { success = false, message = "An error occurred. Please try again later." });
             }
         }
-        //הוספת פונקציה חדשה שתוודא שהקוד הוזן על ידי המשתמש 
+        public ActionResult VerifyCode()
+        {
+            return View("VerifyCode");
+        }
         [HttpPost]
         public JsonResult VerifyResetCode(int enteredCode)
         {
@@ -256,19 +296,7 @@ namespace ELibrary.Controllers
                 return Json(new { success = false, message = "An error occurred. Please try again later." });
             }
         }
-        //יצירת סיסמה חדשה אם הקוד עבר בהצלחה אז נוכל לפנות את המשתמש לעמוד שבו הוא יעשה איפוס סיסמה
-        public ActionResult ResetPasswordPage()
-        {
-            if (Session["ResetEmail"] == null)
-            {
-                // אם ה-Session לא קיים, חזור לעמוד הראשי
-                return RedirectToAction("Forgot_password");
-            }
 
-            ViewBag.Email = Session["ResetEmail"].ToString();
-            return View();
-        }
-        //עדכון סיסמה 
         [HttpPost]
         public JsonResult ResetPassword(string newPassword)
         {
@@ -309,38 +337,13 @@ namespace ELibrary.Controllers
             }
         }
 
-        //כדי לשלוח את המייל הוספת פונקציה SMTP 
-        private void SendEmail(string to, string subject, string body)
-        {
-            try
-            {
-                MailMessage mail = new MailMessage();
-                mail.From = new MailAddress("your-email@gmail.com"); // כתובת השולח
-                mail.To.Add(to); // כתובת הנמען
-                mail.Subject = subject; // נושא המייל
-                mail.Body = body; // תוכן המייל
-
-                SmtpClient client = new SmtpClient("smtp.gmail.com", 587); // עדכון שרת ופורט
-                client.Credentials = new NetworkCredential("your-email@gmail.com", "your-app-password"); // אימות
-                client.EnableSsl = true; // חיבור מאובטח
-
-                client.Send(mail); // שליחת המייל
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error sending email: {ex.Message}");
-                throw; // ניתן להוסיף טיפול שגיאות נוסף כאן
-            }
-        }
-
         public ActionResult Register()
         {
             return View("sign_up");
         }
 
-        public ActionResult ForgotPassword()
-        {
-            return View("Forgot_password");
-        }
+        public ActionResult ForgotPassword() { return View("Forgot_password"); }
+
+
     }
 }

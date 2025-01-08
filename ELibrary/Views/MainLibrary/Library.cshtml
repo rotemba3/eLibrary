@@ -86,9 +86,19 @@
                         <p>Description: @book.Desrip</p> <!--does not need to buy here-->
                     </div>
                     <div class="Buy&Borrow-Button">
-                        <button type="button" class="signup-btn buy-button" data-isbn="@book.ISBN">Buy</button>
+                        @using (Html.BeginForm("AddToCart", "MainLibrary", FormMethod.Post))
+                        {
+                            @Html.Hidden("ISBN", book.ISBN)
+                            <button type="submit" class="signup-btn">Buy</button>
+                        }
                         @if (book.IsBuyOnly == false)
-                        {<button type="button" class="signup-btn borrow-button" data-isbn="@book.ISBN">Borrow</button>}
+                        {
+                            using (Html.BeginForm("AddToBorrowCart", "MainLibrary", FormMethod.Post))
+                            {
+                                @Html.Hidden("ISBN", book.ISBN)
+                                <button type="submit" class="signup-btn">Borrow</button>
+                                }
+                            }
                     </div>
                 }
             }
@@ -98,7 +108,6 @@
         </div>
     </div>
     <script>
-
         // מנוע החיפוש והקטגוריות
         document.addEventListener('DOMContentLoaded', function () {
             const filterBy = document.getElementById('filter-by');
@@ -172,39 +181,5 @@
             });
         });
     </script>
-    <script> //for add to cart
-        document.addEventListener('DOMContentLoaded', function () {
-            const buyButtons = document.querySelectorAll('.buy-button');
-
-            buyButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const isbn = button.getAttribute('data-isbn');
-
-                    fetch('/MainLibrary/AddToCart', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('input[name="__RequestVerificationToken"]').value // Include CSRF token if needed
-                        },
-                        body: JSON.stringify({ isbn: isbn })
-                    })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Failed to add to cart.');
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            alert(data.message || 'Book added to cart!');
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('There was an error adding the book to the cart. Please try again.');
-                        });
-                });
-            });
-        });
-    </script>
-
 </body>
 </html>

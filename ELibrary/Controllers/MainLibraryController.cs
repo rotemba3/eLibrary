@@ -66,36 +66,11 @@ namespace ELibrary.Controllers
             return View(LibraryList);
         }
 
-        public ActionResult SingleBook(string Isbn) 
+        public ActionResult SingleBook(string ISBN)
         {
-            Books selectedBook = null;
+            Books selectedBook = getBookFromDB(ISBN); //using function that get book with ISBN
             using (SqlConnection connection = new SqlConnection(ConnectionString)) //opening connection
             {
-                connection.Open();
-                string sqlQuery = "SELECT * FROM Book WHERE ISBN = @ISBN"; //using specific isbn
-                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
-                {
-                    command.Parameters.AddWithValue("@ISBN", Isbn);
-                    SqlDataReader reader = command.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        selectedBook = new Books
-                        {
-                            ISBN = reader.GetString(0),
-                            Title = reader.GetString(1),
-                            Authors = reader.GetString(2),
-                            Price = reader.GetDouble(3),
-                            PriceDecrease = reader.IsDBNull(4) ? 0 : reader.GetInt32(4),
-                            Cover = reader.GetString(5),
-                            Publisher = reader.GetString(6),
-                            PublishYear = reader.GetDateTime(7),
-                            Genre = reader.GetString(8),
-                            IsBuyOnly = reader.GetBoolean(9),
-                            Desrip = reader.IsDBNull(10) ? string.Empty : reader.GetString(10)
-                        };
-                    }
-                }
-                connection.Close();
                 if (selectedBook == null)
                 {
                     return HttpNotFound(); // Handle cases where the book isn't found.
@@ -109,7 +84,7 @@ namespace ELibrary.Controllers
                     string sqlQuery_2 = "SELECT * FROM Reviews WHERE ISBN = @ISBN";
                     using (SqlCommand commend = new SqlCommand(sqlQuery_2, connection_2))
                     {
-                        commend.Parameters.AddWithValue("@ISBN", Isbn);
+                        commend.Parameters.AddWithValue("@ISBN", ISBN);
                         SqlDataReader reader = commend.ExecuteReader();
                         while (reader.Read())
                         {
@@ -217,19 +192,216 @@ namespace ELibrary.Controllers
         }
 
         [HttpPost]
-        public JsonResult AddToCart(string ISBN)
+        public ActionResult AddToCart(string ISBN)
         {
-            // Retrieve the cart from the session or create a new one
-            List<string> cart = Session["Cart"] as List<string> ?? new List<string>();
+            // Retrieve the cart from Session or initialize a new list
+            var cartList = Session["CartItems"] as List<Books> ?? new List<Books>();
 
-            // Add the book's ISBN to the cart
-            cart.Add(ISBN);
+            Books book = getBookFromDB(ISBN);
 
-            // Save the updated cart back to the session
-            Session["Cart"] = cart;
+            // Add the ISBN to the cart
+            if (!cartList.Contains(book)) { cartList.Add(book); }
 
-            return Json(new { success = true, message = "Book added to the cart." });
+            // Save the cart back to Session
+            Session["CartItems"] = cartList;
+
+            // Redirect back to the Library page (or wherever the user was)
+            return RedirectToAction("Library");
         }
 
+        [HttpPost]
+        public ActionResult AddToBorrowCart(string ISBN)
+        {
+            // Retrieve the cart from Session or initialize a new list
+            var BorrowCartList = Session["BorrowItems"] as List<Books> ?? new List<Books>();
+
+            Books book = getBookFromDB(ISBN);
+
+            // Add the ISBN to the cart
+            if (!BorrowCartList.Contains(book)) { BorrowCartList.Add(book); }
+
+            // Save the cart back to Session
+            Session["BorrowItems"] = BorrowCartList;
+
+            // Redirect back to the Library page (or wherever the user was)
+            return RedirectToAction("Library");
+        }
+
+        public Books getBookFromDB(string ISBN)
+        {
+            Books book = null;
+            using (SqlConnection connection = new SqlConnection(ConnectionString)) //opening connection to db
+            {
+                connection.Open();
+                string sqlQuery = "SELECT * FROM Book WHERE ISBN = @ISBN"; //using specific ISBN
+                using (SqlCommand commend = new SqlCommand(sqlQuery, connection))
+                {
+                    commend.Parameters.AddWithValue("@ISBN", ISBN);
+                    SqlDataReader reader = commend.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        try
+                        {
+                            book = new Books
+                            {
+                                ISBN = reader.GetString(0),
+                                Title = reader.GetString(1),
+                                Authors = reader.GetString(2),
+                                Price = reader.GetDouble(3),
+                                PriceDecrease = (!reader.IsDBNull(4) ? reader.GetInt32(4) : 0),
+                                Cover = reader.GetString(5),
+                                Publisher = reader.GetString(6),
+                                PublishYear = reader.GetDateTime(7),
+                                Genre = reader.GetString(8),
+                                IsBuyOnly = reader.GetBoolean(9),
+                                Desrip = (!reader.IsDBNull(10) ? reader.GetString(10) : string.Empty)
+                            };
+                        }
+                        catch (Exception ex) { Console.WriteLine($"Error reading data: {ex.Message}"); }
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return book;
+        }
+
+        [HttpPost]
+        public ActionResult RemoveFromCart(string ISBN)
+        {
+            var cartList = Session["CartItems"] as List<Books> ?? new List<Books>();
+            Books book = getBookFromDB(ISBN);
+            cartList.Remove(book); //this will call for Equels in books model
+            Session["CartItems"] = cartList;
+            return RedirectToAction("CheckOut");
+        }
+
+        [HttpPost]
+        public ActionResult RemoveFromBorrowCart(string ISBN)
+        {
+            var BorrowCartList = Session["BorrowItems"] as List<Books> ?? new List<Books>();
+            Books book = getBookFromDB(ISBN);
+            BorrowCartList.Remove(book);
+            Session["BorrowItems"] = BorrowCartList;
+            return RedirectToAction("CheckOut");
+        }
+
+        [HttpPost]
+        public ActionResult checkout_books()
+        {
+            var cartItems = Session["CartItems"] as List<ELibrary.Models.Books> ?? new List<ELibrary.Models.Books>();
+            var borrowItems = Session["BorrowItems"] as List<ELibrary.Models.Books> ?? new List<ELibrary.Models.Books>();
+            HttpCookie userCookie = Request.Cookies["Username"];
+
+            if (cartItems != null)
+            {
+                foreach (var book in cartItems)
+                {
+                    AddBookToUser(book.ISBN, userCookie.Value, false);
+                }
+                cartItems.Clear();
+            }
+            if (borrowItems != null)
+            {
+                foreach (var book in borrowItems)
+                {
+                    BorrowBook(book.ISBN, userCookie.Value);
+                }
+                borrowItems.Clear();
+            }
+            return RedirectToAction("CheckOut");
+        }
+
+        public void BorrowBook (string ISBN, string username) //to check book availability 
+        {
+            int checkCount = 0;
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string sqlQuery = "SELECT COUNT(*) FROM User_Library WHERE ISBN = @ISBN";
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@ISBN", ISBN);
+                    object result = command.ExecuteScalar();
+                    checkCount = (result != DBNull.Value) ? Convert.ToInt32(result) : 0;
+                }
+                connection.Close();
+            }
+            if (checkCount < 3 && AmountUserBorrow(username) == false) { AddBookToUser(ISBN, username, true); }
+            else { AddUserToWaiting(ISBN, username); }
+        }
+
+        public void AddBookToUser(string ISBN, string username, bool IsBorrow) //to add books to user library
+        {
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string sqlQuery = "INSERT INTO User_Library (Username, ISBN, IsBorrowed, TimeBorrowed) VALUES (@Username, @ISBN, @IsBorrowed, @TimeBorrowed)";
+                using (SqlCommand commend = new SqlCommand(sqlQuery, connection))
+                {
+                    commend.Parameters.AddWithValue("@Username", username);
+                    commend.Parameters.AddWithValue("@ISBN", ISBN);
+                    commend.Parameters.AddWithValue("@IsBorrowed", IsBorrow);
+                    commend.Parameters.AddWithValue("@TimeBorrowed", DateTime.Now);
+
+                    commend.ExecuteNonQuery();
+                    TempData["SuccessMessage"] = "The book was successfully added!";
+                }
+                connection.Close();
+            }
+        }
+
+        public void AddUserToWaiting(string ISBN, string username) //to add user to the book waiting line
+        {
+            int maxPlaceInLine = 0;
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string sqlQuery = "SELECT MAX(PlaceInLine) AS MaxPlaceInLine FROM WaitingLine WHERE ISBN = @ISBN";
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@ISBN", ISBN);
+
+                    object result = command.ExecuteScalar();
+                    maxPlaceInLine = (result != DBNull.Value) ? Convert.ToInt32(result) : 0;
+                }
+                connection.Close();
+            }
+
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string sqlQuery = "INSERT INTO WaitingLine (ISBN, Username, PlaceInLine) VALUES (@ISBN, @Username, @PlaceInLine)";
+                using (SqlCommand commend = new SqlCommand(sqlQuery, connection))
+                {
+                    commend.Parameters.AddWithValue("@ISBN", ISBN);
+                    commend.Parameters.AddWithValue("@Username", username);
+                    commend.Parameters.AddWithValue("@PlaceInLine", maxPlaceInLine);
+
+                    commend.ExecuteNonQuery();
+                    TempData["SuccessMessage"] = "The book was successfully added!";
+                }
+                connection.Close();
+            }
+        }
+
+        public bool AmountUserBorrow(string username) //to check that user borrow max 3 books
+        {
+            int count = 0;
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string sqlQuery = "SELECT COUNT(*) FROM User_Library WHERE Username = @Username AND IsBorrowed = 1";
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@Username", username);
+
+                    object result = command.ExecuteScalar();
+                    count = (result != DBNull.Value) ? Convert.ToInt32(result) : 0;
+                }
+            }
+            if (count < 3) { return false; }
+            return true;
+        }
     }
 }
