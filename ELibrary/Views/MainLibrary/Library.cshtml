@@ -82,7 +82,8 @@
                         }
                         else
                         { <p>Price: ₪@book.Price</p>}
-                        <p>Genre: @book.Genre</p>
+                        @if(book.IsBuyOnly == false) { <p>Borrowing Price: ₪@book.BorrowPrice</p>}
+                        <p>Genre: @book.Genre Age Limit:@book.AgeLimit</p> 
                         <p>Description: @book.Desrip</p> <!--does not need to buy here-->
                     </div>
                     <div class="Buy&Borrow-Button">

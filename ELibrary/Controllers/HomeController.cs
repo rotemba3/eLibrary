@@ -45,7 +45,9 @@ namespace ELibrary.Controllers
                                 PublishYear = reader.GetDateTime(7),
                                 Genre = reader.GetString(8),
                                 IsBuyOnly = reader.GetBoolean(9),
-                                Desrip = (!reader.IsDBNull(10) ? reader.GetString(10) : string.Empty)
+                                Desrip = (!reader.IsDBNull(10) ? reader.GetString(10) : string.Empty),
+                                AgeLimit = (!reader.IsDBNull(11) ? reader.GetInt32(11) : 0),
+                                BorrowPrice = (!reader.IsDBNull(12) ? reader.GetDouble(12) : 0)
                             };
                             book_list.Add(book);
                         }

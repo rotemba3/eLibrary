@@ -245,5 +245,24 @@ namespace ELibrary.Controllers
             }
             return RedirectToAction("AdminProfile");
         }
+
+        [HttpPost]
+        public ActionResult RemoveBookFromUser(string ISBN) //when user wants to remove book from his library
+        {
+            string userCookie = Request.Cookies["Username"].Value;
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string sqlQuery = "DELETE FROM User_Library WHERE ISBN = @ISBN AND Username = @Username ";
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@ISBN", ISBN);
+                    command.Parameters.AddWithValue("@Username", userCookie);
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
+            return RedirectToAction("UserProfile");
+        }
     }
 }

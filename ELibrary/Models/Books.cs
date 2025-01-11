@@ -22,6 +22,8 @@ namespace ELibrary.Models
         public bool IsBuyOnly { get; set; }
         public string Desrip { get; set; }
         public int ReviewsCount { get; set; } // מספר הביקורות מחושב מתוך Reviews
+        public int AgeLimit { get; set; }
+        public double BorrowPrice { get; set; }
 
 
         // Override Equals to compare ISBN
