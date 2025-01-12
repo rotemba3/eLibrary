@@ -1,4 +1,5 @@
 ﻿using ELibrary.Models;
+using Microsoft.SqlServer.Server;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -500,5 +501,42 @@ namespace ELibrary.Controllers
         }
 
         public ActionResult NoUserProfile() { return View(); }
+
+        [HttpPost]
+        public ActionResult DownloadBook(string BookFormat)
+        {
+            // Logic to serve the requested file based on the selected format
+            string filePath = "";
+
+            // Logic to determine the file path based on format
+            switch (BookFormat.ToUpper())
+            {
+                case "PDF":
+                    filePath = Server.MapPath("~/Formats/BookFormat.pdf"); // Adjust the path as needed
+                    break;
+                case "FB2":
+                    filePath = Server.MapPath("~/Formats/BookFormat.fb2"); // Adjust the path as needed
+                    break;
+                case "MOBI":
+                    filePath = Server.MapPath("~/Formats/BookFormat.mobi"); // Adjust the path as needed
+                    break;
+                case "EPUB":
+                    filePath = Server.MapPath("~/Formats/BookFormat.epub"); // Adjust the path as needed
+                    break;
+                default:
+                    return new HttpStatusCodeResult(400, "Invalid format selected");
+            }
+
+            // Check if the file exists
+            if (System.IO.File.Exists(filePath))
+            {
+                return File(filePath, "application/octet-stream", $"book.{BookFormat.ToLower()}");
+            }
+            else
+            {
+                return new HttpStatusCodeResult(404, "File not found in the selected format");
+            }
+        }
+
     }
 }

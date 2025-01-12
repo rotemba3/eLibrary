@@ -1,0 +1,138 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .payment-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            border-left: 5px solid purple;
+        }
+
+            .payment-container h2 {
+                text-align: center;
+                color: purple;
+                margin-bottom: 20px;
+            }
+
+            .payment-container label {
+                display: block;
+                margin: 10px 0 5px;
+                color: #333;
+            }
+
+            .payment-container input {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 15px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                font-size: 14px;
+            }
+
+                .payment-container input:focus {
+                    border-color: purple;
+                    outline: none;
+                    box-shadow: 0 0 5px rgba(128, 0, 128, 0.5);
+                }
+
+            .payment-container button {
+                width: 100%;
+                padding: 10px;
+                background-color: purple;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                font-size: 16px;
+                cursor: pointer;
+                margin-top: 10px;
+            }
+
+                .payment-container button:hover {
+                    background-color: #6a0dad;
+                }
+
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <h2>Payment Information</h2>
+        <form id="paymentForm">
+            <label for="cardNumber">Card Number</label>
+            <input type="text" id="cardNumber" maxlength="16" placeholder="Enter 16-digit card number" required />
+            <div class="error" id="cardNumberError">Card number must be 16 digits.</div>
+
+            <label for="idNumber">ID Number</label>
+            <input type="text" id="idNumber" maxlength="9" placeholder="Enter ID number" required />
+
+            <label for="phoneNumber">Phone Number</label>
+            <input type="text" id="phoneNumber" maxlength="10" placeholder="Enter phone number" required />
+
+            <label for="expiryDate">Expiry Date</label>
+            <input type="text" id="expiryDate" placeholder="MM/YY" maxlength="5" required />
+
+            <label for="cvv">CVV</label>
+            <input type="text" id="cvv" maxlength="3" placeholder="Enter 3-digit CVV" required />
+            <div class="error" id="cvvError">CVV must be 3 digits.</div>
+
+            <button type="submit">Submit Payment</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('paymentForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const cardNumber = document.getElementById('cardNumber').value;
+            const cvv = document.getElementById('cvv').value;
+
+            let valid = true;
+
+            // Validate card number
+            if (cardNumber.length !== 16 || isNaN(cardNumber)) {
+                document.getElementById('cardNumberError').style.display = 'block';
+                valid = false;
+            } else {
+                document.getElementById('cardNumberError').style.display = 'none';
+            }
+
+            // Validate CVV
+            if (cvv.length !== 3 || isNaN(cvv)) {
+                document.getElementById('cvvError').style.display = 'block';
+                valid = false;
+            } else {
+                document.getElementById('cvvError').style.display = 'none';
+            }
+
+            if (valid) {
+                alert('Payment submitted successfully!');
+
+                // Redirect to the cart to complete the checkout
+                window.location.href = '@Url.Action("CheckOut", "MainLibrary")';
+            }
+        });
+    </script>
+</body>
+</html>

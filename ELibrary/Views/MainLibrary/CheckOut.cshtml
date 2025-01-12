@@ -91,9 +91,10 @@
         <div class="Total-section">
             @if (cartItems.Count > 0 || borrowItems.Count > 0)
             {
-                <form action="@Url.Action("checkout_books", "MainLibrary")" method="post">
-                    <button type="submit" class="checkout-btn">Proceed to Checkout</button>
-                </form>
+                @Html.ActionLink("Proceed to Payment", "Payment", "MainLibrary")
+            <form action="@Url.Action("checkout_books", "MainLibrary")" method="post">
+                <br><button type="submit" class="checkout-btn">Finish purchase</button>
+            </form>
             }
             <p><strong>Total Price: ₪@ViewBag.TotalPrice</strong></p>
         </div>

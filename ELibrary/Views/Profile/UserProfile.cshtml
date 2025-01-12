@@ -42,6 +42,18 @@
                             }
                         }
                     }
+
+                    <form action="@Url.Action("DownloadBook", "Profile")" method="post"> <!--to download book format-->
+                        <label for="format"><strong>Select format:</strong></label>
+                        <select id="format" name="BookFormat" class="BookFormat">
+                            <option value="PDF">PDF</option>
+                            <option value="Fb2">fb2</option>
+                            <option value="Mobi">mobi</option>
+                            <option value="epub">epub</option>
+                        </select>
+                        <input type="submit" value="Download">
+                    </form>
+
                     <form action="@Url.Action("RemoveBookFromUser", "Profile")" method="post" onsubmit="return confirm('Are you sure you want to remove this book?');">
                         @Html.Hidden("ISBN", book.ISBN)
                         <button type="submit" class="remove-btn">Remove</button>

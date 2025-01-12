@@ -183,6 +183,10 @@
     <Content Include="Scripts\bootstrap.esm.min.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Formats\BookFormat.epub" />
+    <Content Include="Formats\BookFormat.fb2" />
+    <Content Include="Formats\BookFormat.mobi" />
+    <Content Include="Formats\BookFormat.pdf" />
     <None Include="Scripts\jquery-3.7.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.1.js" />
     <Content Include="Scripts\jquery-3.7.1.min.js" />
@@ -216,6 +220,7 @@
     <Content Include="Views\Login\VerifyCode.cshtml" />
     <Content Include="Views\Login\Reset_password.cshtml" />
     <Content Include="Views\Profile\NoUserProfile.cshtml" />
+    <Content Include="Views\MainLibrary\Payment.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

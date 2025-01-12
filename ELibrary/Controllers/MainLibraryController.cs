@@ -433,5 +433,6 @@ namespace ELibrary.Controllers
             return total;
         }
 
+        public ActionResult Payment() { return View(); }
     }
 }
