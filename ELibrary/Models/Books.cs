@@ -21,10 +21,9 @@ namespace ELibrary.Models
         public string Genre { get; set; }
         public bool IsBuyOnly { get; set; }
         public string Desrip { get; set; }
-        public int ReviewsCount { get; set; } // מספר הביקורות מחושב מתוך Reviews
         public int AgeLimit { get; set; }
         public double BorrowPrice { get; set; }
-
+        public int ReviewsCount { get; set; } // מספר הביקורות מחושב מתוך Reviews
 
         // Override Equals to compare ISBN
         public override bool Equals(object obj)

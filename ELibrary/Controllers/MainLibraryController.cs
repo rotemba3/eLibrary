@@ -48,7 +48,9 @@ namespace ELibrary.Controllers
                                 PublishYear = reader.GetDateTime(7),
                                 Genre = reader.GetString(8),
                                 IsBuyOnly = reader.GetBoolean(9),
-                                Desrip = (!reader.IsDBNull(10) ? reader.GetString(10) : string.Empty)
+                                Desrip = (!reader.IsDBNull(10) ? reader.GetString(10) : string.Empty),
+                                AgeLimit = (!reader.IsDBNull(11) ? reader.GetInt32(11) : 0),
+                                BorrowPrice = (!reader.IsDBNull(12) ? reader.GetDouble(12) : 0)
                             };
                             LibraryList.Add(book);
                         }
@@ -162,7 +164,7 @@ namespace ELibrary.Controllers
                 connection.Open();
                 string sqlQuery = @"
             SELECT b.ISBN, b.Title, b.Authors, b.Price, b.PriceDecrease, b.Cover, 
-                   b.Publisher, b.PublishYear, b.Genre, b.IsBuyOnly, b.Desrip,
+                   b.Publisher, b.PublishYear, b.Genre, b.IsBuyOnly, b.Desrip, b.AgeLimit, b.BorrowPrice,
                    (SELECT COUNT(*) FROM Reviews r WHERE r.ISBN = b.ISBN) AS ReviewsCount
             FROM Book b";
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
@@ -183,7 +185,9 @@ namespace ELibrary.Controllers
                             Genre = reader.GetString(8),
                             IsBuyOnly = reader.GetBoolean(9),
                             Desrip = (!reader.IsDBNull(10) ? reader.GetString(10) : string.Empty),
-                            ReviewsCount = reader.GetInt32(11) // מספר הביקורות מחושב דינמית
+                            AgeLimit = (!reader.IsDBNull(11) ? reader.GetInt32(11) : 0),
+                            BorrowPrice = (!reader.IsDBNull(12) ? reader.GetDouble(12) : 0),
+                            ReviewsCount = reader.GetInt32(13) // מספר הביקורות מחושב דינמית
                         });
                     }
                 }
@@ -254,7 +258,9 @@ namespace ELibrary.Controllers
                                 PublishYear = reader.GetDateTime(7),
                                 Genre = reader.GetString(8),
                                 IsBuyOnly = reader.GetBoolean(9),
-                                Desrip = (!reader.IsDBNull(10) ? reader.GetString(10) : string.Empty)
+                                Desrip = (!reader.IsDBNull(10) ? reader.GetString(10) : string.Empty),
+                                AgeLimit = (!reader.IsDBNull(11) ? reader.GetInt32(11) : 0),
+                                BorrowPrice = (!reader.IsDBNull(12) ? reader.GetDouble(12) : 0)
                             };
                         }
                         catch (Exception ex) { Console.WriteLine($"Error reading data: {ex.Message}"); }

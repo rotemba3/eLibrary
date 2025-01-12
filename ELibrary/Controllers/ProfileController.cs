@@ -40,7 +40,7 @@ namespace ELibrary.Controllers
             using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-                string sqlQuery = "INSERT INTO Book (ISBN, Title, Authors, Price, PriceDecrease, Cover, Publisher, PublisherYear, Genre, IsBuyOnly, Derip) VALUES (@ISBN, @Title, @Authors, @Price, @PriceDecrease, @Cover, @Publisher, @PublisherYear, @Genre, @IsBuyOnly, @Derip)";
+                string sqlQuery = "INSERT INTO Book (ISBN, Title, Authors, Price, PriceDecrease, Cover, Publisher, PublisherYear, Genre, IsBuyOnly, Desrip, AgeLimit, BorrowPrice) VALUES (@ISBN, @Title, @Authors, @Price, @PriceDecrease, @Cover, @Publisher, @PublisherYear, @Genre, @IsBuyOnly, @Desrip, @AgeLimit, @BorrowPrice)";
                 using (SqlCommand commend = new SqlCommand(sqlQuery, connection))
                 {
                     commend.Parameters.AddWithValue("@ISBN", book.ISBN);
@@ -53,7 +53,9 @@ namespace ELibrary.Controllers
                     commend.Parameters.AddWithValue("@PublisherYear", book.PublishYear);
                     commend.Parameters.AddWithValue("@Genre", book.Genre);
                     commend.Parameters.AddWithValue("@IsBuyOnly", book.IsBuyOnly);
-                    commend.Parameters.AddWithValue("@Derip", book.Desrip);
+                    commend.Parameters.AddWithValue("@Desrip", book.Desrip);
+                    commend.Parameters.AddWithValue("@AgeLimit", book.AgeLimit);
+                    commend.Parameters.AddWithValue("@BorrowPrice", book.BorrowPrice);
                     //בדיקה אם הערך של היום תקין
                     if (book.PublishYear < new DateTime(1753, 1, 1) || book.PublishYear > DateTime.Now)
                     {
@@ -114,7 +116,7 @@ namespace ELibrary.Controllers
             {
                 System.Diagnostics.Debug.WriteLine("Connection String: " + connection.Database); //check connection to db
                 connection.Open();
-                string sqlQuery = "SELECT Book.ISBN, Book.Title, Book.Authors, Book.Price, Book.PriceDecrease,Book.Cover, Book.Publisher, Book.PublishYear, Book.Genre, Book.IsBuyOnly, Book.Desrip FROM Book INNER JOIN User_Library ON User_Library.ISBN = Book.ISBN WHERE User_Library.Username = @Username";
+                string sqlQuery = "SELECT Book.ISBN, Book.Title, Book.Authors, Book.Price, Book.PriceDecrease,Book.Cover, Book.Publisher, Book.PublishYear, Book.Genre, Book.IsBuyOnly, Book.Desrip, book.AgeLimit, book.BorrowPrice FROM Book INNER JOIN User_Library ON User_Library.ISBN = Book.ISBN WHERE User_Library.Username = @Username";
                 using (SqlCommand commend = new SqlCommand(sqlQuery, connection))
                 {
                     commend.Parameters.AddWithValue("@Username", currentUser);
@@ -135,7 +137,9 @@ namespace ELibrary.Controllers
                                 PublishYear = reader.GetDateTime(7),
                                 Genre = reader.GetString(8),
                                 IsBuyOnly = reader.GetBoolean(9),
-                                Desrip = reader.IsDBNull(10) ? string.Empty : reader.GetString(10)
+                                Desrip = reader.IsDBNull(10) ? string.Empty : reader.GetString(10),
+                                AgeLimit = (!reader.IsDBNull(11) ? reader.GetInt32(11) : 0),
+                                BorrowPrice = (!reader.IsDBNull(12) ? reader.GetDouble(12) : 0)
                             };
                             Personal_books.Add(book);
                         }

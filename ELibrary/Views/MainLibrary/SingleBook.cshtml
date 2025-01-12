@@ -52,6 +52,7 @@
         <p>@Model.book.Cover</p>
         <p>Author: @Model.book.Authors</p>
         <p>Genre: @Model.book.Genre</p>
+        <p>Age Limit: @Model.book.AgeLimit</p>
         <p>Publisher: @Model.book.Publisher</p>
         <p>Published year: @Model.book.PublishYear</p>
         @if (@Model.book.PriceDecrease > 0) //there is a sale
@@ -60,6 +61,7 @@
         }
         else
         { <p>Price: ₪@Model.book.Price</p>}
+        @if (@Model.book.IsBuyOnly == false) { <p>Borrowing price: ₪@Model.book.BorrowPrice</p>}
         <p>Description: @Model.book.Desrip</p> <!--does not need to buy here-->
     </div>
 
