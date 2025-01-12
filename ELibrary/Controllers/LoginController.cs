@@ -11,13 +11,13 @@ using System.Web.Mvc;
 //using Microsoft.Extensions.Options;
 //using Microsoft.Extensions.DependencyInjection;
 using System.Net.Configuration;
+using System.Net.Http.Headers;
 
 namespace ELibrary.Controllers
 {
     public class LoginController : Controller
     {
         private readonly string ConnectionString = ConfigurationManager.ConnectionStrings["DefaultConnectionString_R"].ConnectionString;
-
 
         // GET: Login
         public ActionResult Login()
@@ -77,6 +77,7 @@ namespace ELibrary.Controllers
                 }
             }
         }
+       
 
         //בודקת האם המשתמש האם ה COOKIE של המשתמש קיים ואז אפשר לזהות אותו
         [HttpGet] //verify Credentials
@@ -179,7 +180,7 @@ namespace ELibrary.Controllers
             }
 
             // הפניה לעמוד ההתחברות אחרי הרשמה מוצלחת
-            return RedirectToAction("Login");
+            return RedirectToAction("HomePage", "Home");
         }
 
         public ActionResult Sign_Up() //register to site 
