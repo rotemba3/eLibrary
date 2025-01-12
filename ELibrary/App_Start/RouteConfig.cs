@@ -40,6 +40,11 @@ namespace ELibrary
                 url: "Login/Forgot_password",
                 defaults: new { controller = "Login", action = "Forgot_password" }
             );
+            routes.MapRoute(
+                name: "VerifyCode",
+                url: "Login/VerifyCode",
+                defaults: new { controller = "Login", action = "VerifyResetCode" }
+            );
         }
     }
 }

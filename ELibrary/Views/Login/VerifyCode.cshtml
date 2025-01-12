@@ -9,6 +9,67 @@
 <head>
     <meta name="viewport" content="width=device-width" />
     <title>VerifyCode</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        form {
+            background-color: #6a1b9a; /* צבע סגול כהה */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+
+        input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background-color: #8e44ad; /* צבע סגול בוהק */
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            button:hover {
+                background-color: #5e3370; /* גוון סגול כהה יותר */
+            }
+
+        #message {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #ffffff;
+        }
+    </style>
+    <!-- Add this in your <head> or before </body> -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha384-oGBq5+sQkbR6Bo9FmrDYmqwA/GkBttZ/Mocfj4hPqeU3BX4kTkHXuCAIvutp9EkH" crossorigin="anonymous"></script>
+
 </head>
 <body>
     <form id="verifyCodeForm">
@@ -17,23 +78,78 @@
         <button type="submit">Verify</button>
     </form>
     <div id="message"></div>
+
     <script>
+        //document.getElementById('verifyCodeForm').addEventListener('submit', function (e) {
+        //    e.preventDefault();
+        //    console.log("wekk");
+        //    const code = document.getElementById('code').value;
+        //    console.log(code)
+        //    //    fetch('/Login/VerifyResetCode', {
+        //    //        method: 'POST',
+        //    //        data: ({ enteredCode:code })//המרת הקוד למספר
+
+        //    //    })
+        //    //        .then(response => response)
+        //    //        .then(data => {
+        //    //            document.getElementById('message').innerText = data.message;
+        //    //            if (data.success) {
+        //    //                window.location.href = '/Login/Reset_password'; // מעבר לדף שינוי סיסמה
+        //    //            }
+        //    //        });
+        //    //});
+        //    $.ajax({
+        //        url: '/Login/VerifyResetCode',
+        //        type: 'POST',
+        //        data:{ enteredCode: code },
+        //        success: function (response) {
+        //        if (response.success) {
+        //            window.location.href = '/Login/Reset_password';
+        //        } // מעבר לדף שינוי סיסמה
+        //        else {
+        //            alert("Wrong Code");
+        //        }
+
+        //    }
+        //        });
+        //    })
+
         document.getElementById('verifyCodeForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const code = document.getElementById('code').value;
-        fetch('/Login/VerifyCode', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code })
-        })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('message').innerText = data.message;
-                if (data.success) {
-                    window.location.href = '/Login/Reset_Password'; // מעבר לדף שינוי סיסמה
-                }
-            });
+            e.preventDefault(); // Prevent the default form submission
+            console.log("Form submitted");
+
+            const code = document.getElementById('code').value; // Get the entered code
+            console.log("Entered code:", code);
+
+            // Native JavaScript Fetch API
+            fetch('/Login/VerifyResetCode', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', // Ensure the server expects JSON
+                },
+                body: JSON.stringify({ enteredCode: code }), // Send the code as JSON
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '/Login/Resetpasswordview'; // Redirect if successful
+                    } else {
+                        alert("Wrong Code");
+
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("An error occurred. Please try again.");
+                });
         });
+
+
     </script>
 </body>
 </html>

@@ -70,8 +70,8 @@
                                     <p>Author: @book.Authors</p>
                                     <p>
                                         Price: ₪@(book.PriceDecrease > 0
-                                        ? book.Price - (book.Price * (book.PriceDecrease * 0.01))
-                                        : book.Price)
+                                        ? book.BorrowPrice - (book.Price * (book.PriceDecrease * 0.01))
+                                        : book.BorrowPrice)
                                     </p>
                                 </div>
                                 <form action="@Url.Action("RemoveFromBorrowCart", "MainLibrary")" method="post">
@@ -95,7 +95,7 @@
                     <button type="submit" class="checkout-btn">Proceed to Checkout</button>
                 </form>
             }
-            <p><strong>Total Price:</strong></p>
+            <p><strong>Total Price: ₪@ViewBag.TotalPrice</strong></p>
         </div>
     </div>
 </body>

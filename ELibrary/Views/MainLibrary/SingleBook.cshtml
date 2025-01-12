@@ -56,19 +56,30 @@
         <p>Publisher: @Model.book.Publisher</p>
         <p>Published year: @Model.book.PublishYear</p>
         @if (@Model.book.PriceDecrease > 0) //there is a sale
-        { 
+        {
             <p>Price: ₪<del>@Model.book.Price</del> @(Model.book.Price - (Model.book.Price * (Model.book.PriceDecrease * 0.01)))</p>
         }
         else
         { <p>Price: ₪@Model.book.Price</p>}
-        @if (@Model.book.IsBuyOnly == false) { <p>Borrowing price: ₪@Model.book.BorrowPrice</p>}
+        @if (@Model.book.IsBuyOnly == false)
+        {<p>Borrowing price: ₪@Model.book.BorrowPrice</p>}
         <p>Description: @Model.book.Desrip</p> <!--does not need to buy here-->
     </div>
 
     <div class="Buy&Borrow-Button">
-        <button type="submit" class="signup-btn">Buy</button>
+        @using (Html.BeginForm("AddToCart", "MainLibrary", FormMethod.Post))
+        {
+            @Html.Hidden("ISBN", Model.book.ISBN)
+            <button type="submit" class="signup-btn">Buy</button>
+        }
         @if (Model.book.IsBuyOnly == false)
-        {<button type="submit" class="signup-btn">Borrow</button>}
+        {
+            using (Html.BeginForm("AddToBorrowCart", "MainLibrary", FormMethod.Post))
+            {
+                @Html.Hidden("ISBN", Model.book.ISBN)
+                <button type="submit" class="signup-btn">Borrow</button>
+            }
+        }
     </div>
 
     <div id="Reviews-list">

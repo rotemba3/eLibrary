@@ -51,11 +51,18 @@ namespace ELibrary.Controllers
                         string usernameString = Username as string;
                         if (usernameString != null)
                         {
-                            // שמירת שם המשתמש בקוקי
+                            // מחיקת קוקי ישן (אם קיים)
+                            if (Request.Cookies["Username"] != null)
+                            {
+                                HttpCookie oldCookie = new HttpCookie("Username");
+                                oldCookie.Expires = DateTime.Now.AddDays(-1); // פג תוקף מיידי
+                                Response.Cookies.Add(oldCookie);
+                            }
+
+                            // יצירת קוקי חדש
                             HttpCookie userCookie = new HttpCookie("Username");
                             userCookie.Value = usernameString; // שם המשתמש
                             userCookie.HttpOnly = true; // מונע גישה מ-JavaScript
-                            userCookie.Secure = true; // שימוש רק ב-HTTPS
                             userCookie.Expires = DateTime.Now.AddDays(7); // תוקף לשבוע
                             Response.Cookies.Add(userCookie);
 
@@ -82,6 +89,8 @@ namespace ELibrary.Controllers
                 if (userCookie != null)
                 {
                     string username = userCookie.Value;
+                    Console.WriteLine($"Cookie Username (raw): {userCookie.Value}");
+                    Console.WriteLine($"Cookie Username (trimmed): {username}");
 
                     // בדיקת שם המשתמש בבסיס הנתונים
                     using (SqlConnection connection = new SqlConnection(ConnectionString))
@@ -335,6 +344,11 @@ namespace ELibrary.Controllers
                 Console.WriteLine($"Error in ResetPassword: {ex.Message}");
                 return Json(new { success = false, message = "An error occurred. Please try again later." });
             }
+        }
+
+        public ActionResult Resetpasswordview()
+        {
+            return View("~/Views/Login/Reset_password.cshtml");
         }
 
         public ActionResult Register()

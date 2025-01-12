@@ -122,7 +122,14 @@ namespace ELibrary.Controllers
             }
         }
 
-        public ActionResult CheckOut() { return View(); }
+        public ActionResult CheckOut() 
+        {
+            var cartList = Session["CartItems"] as List<Books> ?? new List<Books>();
+            var BorrowCartList = Session["BorrowItems"] as List<Books> ?? new List<Books>();
+            var totalPrice = CalculateCartTotal(cartList, BorrowCartList);
+            ViewBag.TotalPrice = totalPrice;
+            return View(); 
+        }
 
         // סינון לפי הנתונים של מנוע החיפוש
         [HttpGet]
@@ -409,5 +416,22 @@ namespace ELibrary.Controllers
             if (count < 3) { return false; }
             return true;
         }
+
+        public double CalculateCartTotal(IEnumerable<Books> cartItems, IEnumerable<Books> BorrowItems)
+        {
+            double total = 0;
+            foreach (Books book in cartItems) 
+            {
+                if (book.PriceDecrease > 0) { total += (book.Price - (book.Price * (book.PriceDecrease * 0.01))); }
+                else { total += book.Price; }
+            }
+            foreach (Books book in BorrowItems)
+            {
+                if (book.PriceDecrease > 0) { total += (book.BorrowPrice - (book.BorrowPrice * (book.PriceDecrease * 0.01))); }
+                else { total += book.BorrowPrice; }
+            }
+            return total;
+        }
+
     }
 }

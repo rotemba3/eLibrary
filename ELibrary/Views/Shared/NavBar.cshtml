@@ -31,7 +31,7 @@
     </style>
 
 </head>
-@if (ViewContext.RouteData.Values["controller"].ToString() != "Login") //so the nav bar wont show where its not needed
+@if (ViewContext.RouteData.Values["controller"].ToString() != "Login") //so the nav bar wont show where its not needed*@
 {
     <body>
         <nav class="navbar navbar-expand-sm">
@@ -43,7 +43,7 @@
             <ul class="nav-links">
                 <li>@Html.ActionLink("Home", "HomePage", "Home")</li>
                 <li>@Html.ActionLink("Library", "Library", "MainLibrary")</li>
-                <li>@Html.ActionLink("Profile", "UserProfile", "Profile")</li>
+                <li>@Html.ActionLink("Profile", "User_Profile", "Profile")</li>
                 <li>@Html.ActionLink("Checkout", "CheckOut", "MainLibrary")</li>
             </ul>
             <!-- עיגול הפרופיל -->
@@ -75,55 +75,53 @@
                     <p><a href="@Url.Action("ForgotPassword", "Login")">Forgot your password?</a></p>
                 </form>
             </div>
-            <!-- חלונית פרופיל -->
-            <div id="profile-modal" class="modal" style="display: none;">
-                <div class="modal-content">
-                    <span class="close" id="modal-close">&times;</span>
-                    <h2>Profile</h2>
-                    <p id="welcome-message">Welcome!</p>
-                    <button id="logout-button">Logout</button>
-                </div>
+
+        </div>
+
+        <!-- חלונית פרופיל -->
+        <div id="profile-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" id="modal-close1">&times;</span>
+                <h2>Profile</h2>
+                <p id="welcome-message">Welcome!</p>
+                <button id="logout-button">Logout</button>
             </div>
         </div>
         <script>
-            // כאשר הדף נטען
-            document.addEventListener('DOMContentLoaded', function () {
-                const profileIcon = document.getElementById('profile-icon');
-                const loginModal = document.getElementById('login-modal');
-                const closeModal = document.getElementById('modal-close');
-                // בלחיצה על אייקון הפרופיל
-                profileIcon.addEventListener('click', function () {
-                    // בדיקת סטטוס התחברות בעת טעינת הדף
-                    fetch('/Login/IsUserLoggedIn', {
-                        method: 'GET',
-                        headers: { 'Content-Type': 'application/json' }
+
+            // בלחיצה על אייקון הפרופיל
+            document.getElementById('profile-icon').addEventListener('click', function () {
+
+                // בדיקת סטטוס התחברות בעת טעינת הדף
+                fetch('/Login/IsUserLoggedIn', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Response data:', data); // הדפס את הערכים שהשרת מחזיר
+                        if (data.isLoggedIn) {
+                            // אם המשתמש מחובר
+
+                            document.getElementById('login-modal').style.display = 'none'; // מסתיר את חלונית ההתחברות
+                            console.log('Login modal hidden because user is logged in.');
+                            document.getElementById('profile-modal').style.display = 'block'; // מציג את חלונית הפרופיל
+                            document.getElementById('welcome-message').textContent = `Welcome, ${data.username}`;
+
+
+                        } else {
+                            // אם המשתמש לא מחובר
+                            alert("no user");
+                            document.getElementById('login-modal').style.display = 'block'; // מציג את חלונית ההתחברות
+                            document.getElementById('profile-modal').style.display = 'none'; // מסתיר את חלונית הפרופיל
+
+                        }
                     })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.isLoggedIn) {
-                                // אם המשתמש מחובר
-                                document.getElementById('login-modal').style.display = 'none'; // מסתיר את חלונית ההתחברות
-                                document.getElementById('profile-modal').style.display = 'block'; // מציג את חלונית הפרופיל
-                                document.getElementById('welcome-message').textContent = `Welcome, ${data.username}`;
-                            } else {
-                                // אם המשתמש לא מחובר
-                                document.getElementById('login-modal').style.display = 'block'; // מציג את חלונית ההתחברות
-                                document.getElementById('profile-modal').style.display = 'none'; // מסתיר את חלונית הפרופיל
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error checking login status:', error);
-                        });
-                });
-                // פתיחת חלונית התחברות בלחיצה על אייקון הפרופיל
-                document.getElementById('profile-icon').addEventListener('click', function () {
-                    const loginModal = document.getElementById('login-modal');
-                    loginModal.style.display = 'block'; // מציג את חלונית ההתחברות
-
-                });
-
+                    .catch(error => {
+                        console.error('Error checking login status:', error);
+                    });
                 // סגירת חלונית התחברות בלחיצה על כפתור X
-                document.getElementById('modal-close').addEventListener('click', function () {
+                document.getElementById('modal-close1').addEventListener('click', function () {
                     const loginModal = document.getElementById('login-modal');
                     const profileModal = document.getElementById('profile-modal');
 
@@ -133,7 +131,23 @@
                         profileModal.style.display = 'none'; // מסתיר את חלונית הפרופיל
                     }
                 });
+                document.getElementById('modal-close').addEventListener('click', function () {
+                    console.log("well");
+                    const loginModal = document.getElementById('login-modal');
+                    const profileModal = document.getElementById('profile-modal');
+
+                    if (loginModal.style.display === 'block') {
+                        loginModal.style.display = 'none'; // מסתיר את חלונית ההתחברות
+                    } else if (profileModal.style.display === 'block') {
+                        profileModal.style.display = 'none'; // מסתיר את חלונית הפרופיל
+                    }
+                });
+
             });
+
+
+
+
 
             // התחברות: שליחת פרטים לשרת
             document.getElementById('login-button').addEventListener('click', function () {
@@ -241,9 +255,9 @@
                             data.forEach(book => {
                                 const resultItem = document.createElement('div');
                                 resultItem.innerHTML = `
-                                <strong>${book.Title}</strong><br>
-                                <small>${book.Authors}</small>
-                            `;
+                                                                    <strong>${book.Title}</strong><br>
+                                                                    <small>${book.Authors}</small>
+                                                                `;
                                 resultItem.style.padding = '10px'; // הוספת מרווח לתוצאה
                                 resultItem.style.cursor = 'pointer'; // סמן עכבר מותאם
                                 resultItem.style.borderBottom = '1px solid rgba(255, 255, 255, 0.2)'; // קו תחתון

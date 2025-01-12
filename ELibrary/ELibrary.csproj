@@ -215,6 +215,7 @@
     <Content Include="Views\Login\Forgot_password.cshtml" />
     <Content Include="Views\Login\VerifyCode.cshtml" />
     <Content Include="Views\Login\Reset_password.cshtml" />
+    <Content Include="Views\Profile\NoUserProfile.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

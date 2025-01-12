@@ -33,10 +33,91 @@ namespace ELibrary.Controllers
             return View(model);
         }
 
+        //בדיקה אם אדמין והעברה לדף המותאם 
+        public ActionResult User_Profile()
+        {
+            var model = new User_Profile_info();
+            HttpCookie userCookie = Request.Cookies["Username"];
+            if (userCookie != null)
+            {
+                string username = userCookie.Value;
+
+                // בדיקת האם המשתמש הוא אדמין
+                bool isAdmin = IsUserAdmin(username);
+
+                if (isAdmin)
+                {
+                    // הפניה לעמוד האדמין
+                    return RedirectToAction("AdminProfile", "Profile");
+                }
+                else
+                {
+                    // אם הוא משתמש רגיל, טעני את המידע הרגיל
+                    model = new User_Profile_info()
+                    {
+                        user = username,
+                        reviews = GetReviews(username),
+                        personal_books = GetPersonalBooks(username),
+                        waiting_lists = GetWaitingLists(username),
+                        UserLibrary = GetUserLibrary(username)
+                    };
+                }
+            }
+            else
+            {
+                // אם אין קוקי, הפניה לעמוד התחברות
+                return RedirectToAction("NoUserProfile", "Profile");
+            }
+
+            return RedirectToAction("UserProfile", "Profile");
+        }
+
+        //בדיקה לאדמין 
+        private bool IsUserAdmin(string username)
+        {
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string sqlQuery = "SELECT IsAdmin FROM Users WHERE Username = @Username";
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@Username", username);
+                    object result = command.ExecuteScalar();
+                    return result != null && Convert.ToBoolean(result);
+                }
+            }
+        }
+        
         public ActionResult AdminProfile() { return View(); }
 
         public ActionResult AddBook(Books book)
         {
+            //checking values
+            var allowedGenres = new List<string> { "fantasy", "sci-fi", "romance", "non-fiction", "horror" };
+            if (!allowedGenres.Contains(book.Genre.ToLower()))
+            {
+                TempData["ErrorMessage5"] = "Invalid Genre. Please select one of the following: Fantasy, Sci-fi, Romance, Non-Fiction, Horror.";
+                return View("AdminProfile");
+            }
+
+            if (string.IsNullOrEmpty(book.ISBN) || book.ISBN.Length != 13)
+            {
+                TempData["ErrorMessage5"] = "ISBN must be exactly 13 characters long.";
+                return View("AdminProfile");
+            }
+
+            if (book.Price <= 0)
+            {
+                TempData["ErrorMessage5"] = "Price must be a positive number (float).";
+                return View("AdminProfile");
+            }
+
+            if (book.PriceDecrease < 0 || book.PriceDecrease > 100)
+            {
+                TempData["ErrorMessage5"] = "PriceDecrease must be an integer between 0 and 100.";
+                return View("AdminProfile");
+            }
+
             using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
@@ -243,10 +324,159 @@ namespace ELibrary.Controllers
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
                     command.Parameters.AddWithValue("@ISBN", ISBN);
-                    command.ExecuteNonQuery();
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    if (rowsAffected > 0)
+                    {
+                        TempData["SuccessMessage"] = "The book was successfully removed!";
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage"] = "Book not found or could not be removed.";
+                    }
                 }
                 connection.Close();
             }
+            return RedirectToAction("AdminProfile");
+        }
+
+        [HttpPost]
+        public ActionResult UpdatePrice(string bookId, decimal newPrice) //update price
+        {
+            if (newPrice <= 0)
+            {
+                TempData["ErrorMessage5"] = "Price must be a positive number (float).";
+                return View("AdminProfile");
+            }
+
+            if (string.IsNullOrWhiteSpace(bookId) || newPrice <= 0)
+            {
+                TempData["ErrorMessage1"] = "Invalid book ID or price.";
+                return RedirectToAction("AdminProfile");
+            }
+
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string sqlQuery = "UPDATE Book SET Price = @NewPrice WHERE ISBN = @BookId";
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@BookId", bookId.Trim());
+                    command.Parameters.AddWithValue("@NewPrice", newPrice);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    if (rowsAffected > 0)
+                    {
+                        TempData["SuccessMessage1"] = "The book's price was successfully updated!";
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage1"] = "Book not found. Price could not be updated.";
+                    }
+                }
+                connection.Close();
+            }
+
+            return RedirectToAction("AdminProfile");
+        }
+
+        [HttpPost]
+        public ActionResult AddPromotion(string bookId, int discount) //add Sale
+        {
+            if (string.IsNullOrWhiteSpace(bookId) || discount < 0 || discount > 100)
+            {
+                TempData["ErrorMessage1"] = "Invalid book ID or discount value.";
+                return RedirectToAction("AdminProfile");
+            }
+
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string sqlQuery = "UPDATE Book SET PriceDecrease = @Discount WHERE ISBN = @BookId";
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@BookId", bookId.Trim());
+                    command.Parameters.AddWithValue("@Discount", discount);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    if (rowsAffected > 0)
+                    {
+                        TempData["SuccessMessage1"] = "Promotion successfully added!";
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage1"] = "Book not found. Promotion could not be added.";
+                    }
+                }
+                connection.Close();
+            }
+
+            return RedirectToAction("AdminProfile");
+        }
+
+        [HttpPost]
+        public ActionResult SetPurchaseOnly(string bookId) //change book to price only
+        {
+            if (string.IsNullOrWhiteSpace(bookId))
+            {
+                TempData["ErrorMessage3"] = "Invalid book ID.";
+                return RedirectToAction("AdminProfile");
+            }
+
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string sqlQuery = "UPDATE Book SET IsBuyOnly = 1 WHERE ISBN = @BookId";
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@BookId", bookId.Trim());
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    if (rowsAffected > 0)
+                    {
+                        TempData["SuccessMessage3"] = "The book was successfully marked as purchase only!";
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage3"] = "Book not found. Could not update the status.";
+                    }
+                }
+                connection.Close();
+            }
+
+            return RedirectToAction("AdminProfile");
+        }
+
+        [HttpPost]
+        public ActionResult ManageUsers(string username) //user to admin
+        {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                TempData["ErrorMessage2"] = "Invalid user ID.";
+                return RedirectToAction("AdminProfile");
+            }
+
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string sqlQuery = "UPDATE Users SET IsAdmin = 1 WHERE Username = @Username";
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@Username", username.Trim());
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    if (rowsAffected > 0)
+                    {
+                        TempData["SuccessMessage2"] = "The user was successfully promoted to admin!";
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage2"] = "User not found. Could not update the role.";
+                    }
+                }
+                connection.Close();
+            }
+
             return RedirectToAction("AdminProfile");
         }
 
@@ -268,5 +498,7 @@ namespace ELibrary.Controllers
             }
             return RedirectToAction("UserProfile");
         }
+
+        public ActionResult NoUserProfile() { return View(); }
     }
 }
