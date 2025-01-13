@@ -434,5 +434,50 @@ namespace ELibrary.Controllers
         }
 
         public ActionResult Payment() { return View(); }
+
+        public ActionResult NewReview(string ISBN)
+        {
+            var book = getBookFromDB(ISBN);  // Assuming you have a method to fetch a book by ISBN
+            var model = new Book_and_Reviews
+            {
+                book = book  // Passing the book to the view
+            };
+            return View(model);  // Passing the model to the view
+        }
+
+        [HttpPost]
+        public ActionResult AddReview(string ISBN, string Stars, string Info)
+        {
+            // Ensure that the cookie exists for the username
+            HttpCookie userCookie = Request.Cookies["Username"];
+            if (userCookie == null)
+            {
+                TempData["ErrorMessage"] = "You must be logged in to post a review.";
+                return RedirectToAction("SingleBook", "MainLibrary", new { ISBN });
+            }
+
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string sqlQuery = "INSERT INTO Reviews (ISBN, Username, Stars, Info) VALUES (@ISBN, @Username, @Stars, @Info)";
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@ISBN", ISBN);
+                    command.Parameters.AddWithValue("@Username", userCookie.Value); // assuming cookie holds username
+                    command.Parameters.AddWithValue("@Stars", Stars);
+                    command.Parameters.AddWithValue("@Info", Info);
+
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
+
+            TempData["SuccessMessage"] = "Review submitted successfully!";
+            // Redirect back to the SingleBook page after submitting a review
+            return RedirectToAction("SingleBook", "MainLibrary", new { ISBN });
+        }
+
+
     }
 }

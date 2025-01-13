@@ -107,6 +107,12 @@
             font-size: 14px;
         }
 
+        .Add-review {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px auto;
+        }
     </style>
 </head>
 <body>
@@ -143,6 +149,14 @@
                 @Html.Hidden("ISBN", Model.book.ISBN)
                 <button type="submit" class="signup-btn">Borrow</button>
             }
+        }
+    </div>
+
+    <div class="Add-review">
+        @using (Html.BeginForm("NewReview", "MainLibrary", FormMethod.Get))
+        {
+            @Html.Hidden("ISBN", Model.book.ISBN)
+            <button type="submit" class="signup-btn">+Add Review</button>
         }
     </div>
 

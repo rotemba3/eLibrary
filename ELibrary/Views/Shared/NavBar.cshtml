@@ -145,10 +145,6 @@
 
             });
 
-
-
-
-
             // התחברות: שליחת פרטים לשרת
             document.getElementById('login-button').addEventListener('click', function () {
                 const username = document.getElementById('username').value.trim();
@@ -253,18 +249,27 @@
                             }
 
                             data.forEach(book => {
+                                console.log('Received book data:', book); // הצגת הספר בקונסולה לאבחון
+
                                 const resultItem = document.createElement('div');
                                 resultItem.innerHTML = `
-                                                                    <strong>${book.Title}</strong><br>
-                                                                    <small>${book.Authors}</small>
-                                                                `;
+                        <strong>${book.Title}</strong><br>
+                        <small>${book.Authors}</small>
+                    `;
                                 resultItem.style.padding = '10px'; // הוספת מרווח לתוצאה
                                 resultItem.style.cursor = 'pointer'; // סמן עכבר מותאם
                                 resultItem.style.borderBottom = '1px solid rgba(255, 255, 255, 0.2)'; // קו תחתון
 
+                                // בדיקה אם ISBN קיים
                                 resultItem.addEventListener('click', function () {
-                                    document.getElementById('search-input').value = book.Title; // מילוי השדה עם הבחירה
-                                    resultsContainer.style.display = 'none'; // הסתר את התוצאות
+                                    if (!book.ISBN) {
+                                        alert('ISBN is missing for the selected book.');
+                                        console.error(`Missing ISBN for book: ${JSON.stringify(book)}`);
+                                        return;
+                                    }
+
+                                    // הפניה לכתובת המתאימה
+                                    window.location.href = `/MainLibrary/SingleBook?ISBN=${encodeURIComponent(book.ISBN)}`;
                                 });
 
                                 resultsContainer.appendChild(resultItem);

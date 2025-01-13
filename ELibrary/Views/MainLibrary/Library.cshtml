@@ -96,7 +96,9 @@
                             else
                             { <p>Price: ₪@book.Price</p>}
                             @if (book.IsBuyOnly == false)
-                            {<p>Borrowing Price: ₪@book.BorrowPrice</p>}
+                            {
+                                <p>Borrowing Price: ₪@book.BorrowPrice</p>
+                            }
                             <p>Genre: @book.Genre Age Limit:@book.AgeLimit</p>
                             <p>Description: @book.Desrip</p> <!--does not need to buy here-->
 
@@ -172,7 +174,7 @@
                         data.forEach(book => {
                             const bookItem = `
                                             <div class="book-item">
-                                                <h3><a href="${book.BookUrl}" class="Title-link">${book.Title}</a></h3>
+                                                <h3><a href="/MainLibrary/SingleBook?ISBN=${book.ISBN}" class="Title-link">${book.Title}</a></h3>
                                                 <p>Author: ${book.Authors}</p>
                                                 ${book.PriceDecrease > 0
                                     ? `<p>Price: ₪<del>${book.Price}</del> ₪${book.Price - (book.Price * (book.PriceDecrease * 0.01))}</p>`

@@ -78,7 +78,7 @@ namespace ELibrary.Controllers
             using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-                string sqlQuery = "SELECT Title, Authors, Cover FROM Book WHERE Title LIKE @Query OR Authors LIKE @Query";
+                string sqlQuery = "SELECT Title, Authors, Cover, ISBN FROM Book WHERE Title LIKE @Query OR Authors LIKE @Query\r\n";
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
                     command.Parameters.AddWithValue("@Query", $"%{query}%"); // חיפוש בטוח מ-SQL Injection
@@ -90,7 +90,8 @@ namespace ELibrary.Controllers
                         {
                             Title = reader.GetString(0),
                             Authors = reader.GetString(1),
-                            Cover = reader.GetString(2)
+                            Cover = reader.GetString(2),
+                            ISBN = reader.GetString(3) 
                         });
                     }
                 }
