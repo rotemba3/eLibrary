@@ -9,6 +9,91 @@
 <head>
     <meta name="viewport" content="width=device-width" />
     <title>UserProfile</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .Books-section, .Reviews-section, .Waiting-list {
+            margin: 20px auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .review-item, .Waiting-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+            .review-item p, .Waiting-item p {
+                margin: 5px 0;
+            }
+
+        p {
+            font-size: 16px;
+            line-height: 1.4;
+        }
+
+            p strong {
+                font-weight: bold;
+                color: #4CAF50;
+            }
+
+        select, button, input[type="submit"] {
+            margin: 10px 0;
+            padding: 10px 15px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+        }
+
+        select {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+        }
+
+        button, input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+            button:hover, input[type="submit"]:hover {
+                background-color: #45a049;
+            }
+
+        .remove-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+            .remove-btn:hover {
+                background-color: #d32f2f;
+            }
+
+        .orange-warning {
+            color: orange;
+            font-weight: bold;
+        }
+    </style>
+
 </head>
 <body>
     <h1>Welcome, @Model.user</h1>
@@ -30,20 +115,30 @@
                         {
                             if (book.ISBN == borrow.ISBN)
                             {
-                                var date_diff = DateTime.Now - borrow.TimeBorrowed;
-                                var days = date_diff.Days;
-                                if (days < 30)
-                                {
-                                    days = 30 - days;
-                                    <p>Time left: @days.ToString() days</p>
-                                }
-                                else
-                                { <p>current book is no longer available.</p>}
+                                
+                                    var date_diff = DateTime.Now - borrow.TimeBorrowed;
+                                    var days = date_diff.Days;
+                                    if (days < 30)
+                                    {
+                                        days = 30 - days;
+                                        if (days == 5)
+                                        {
+                                            <p style="color: orange;">שימו לב: נותרו עוד 5 ימים להחזרת הספר!</p>
+                                        }
+                                        <p>זמן שנותר: @days ימים</p>
+                                    }
+                                    else
+                                    {
+                                        <p>הספר כבר אינו זמין להחזרה.</p>
+                                    }
+                                
+
                             }
                         }
                     }
 
-                    <form action="@Url.Action("DownloadBook", "Profile")" method="post"> <!--to download book format-->
+                    <form action="@Url.Action("DownloadBook", "Profile")" method="post">
+                        <!--to download book format-->
                         <label for="format"><strong>Select format:</strong></label>
                         <select id="format" name="BookFormat" class="BookFormat">
                             <option value="PDF">PDF</option>

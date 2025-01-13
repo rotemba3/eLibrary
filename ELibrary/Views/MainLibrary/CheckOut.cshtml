@@ -14,6 +14,125 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="~\Content\Cart_Style.css" />
     <title>CheckOut</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f0ff; /* צבע רקע רך */
+            color: #333;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #6a1b9a; /* סגול כהה */
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .cart-section, .borrow-section, .Total-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #ce93d8; /* גבול סגול */
+            border-radius: 8px;
+            background-color: #f8eaf6; /* צבע רקע פנימי בהיר */
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #e1bee7; /* גבול סגול בהיר */
+            border-radius: 8px;
+            background-color: #fbe4ff; /* סגול בהיר */
+        }
+
+            .cart-item img.book-cover {
+                width: 80px;
+                height: auto;
+                margin-right: 15px;
+                border-radius: 4px;
+                border: 2px solid #ce93d8; /* מסגרת סביב התמונה */
+            }
+
+        .book-details {
+            flex: 1;
+        }
+
+            .book-details h3 {
+                margin: 0;
+                font-size: 18px;
+                color: #4a0072; /* סגול כהה יותר */
+            }
+
+            .book-details p {
+                margin: 5px 0;
+                font-size: 14px;
+            }
+
+        button, .checkout-btn {
+            display: inline-block;
+            padding: 10px 15px;
+            margin: 10px 0;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            background-color: #8e24aa; /* סגול כהה */
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            button:hover, .checkout-btn:hover {
+                background-color: #6a1b9a; /* סגול כהה יותר בלחיצה */
+            }
+
+        .remove-btn {
+            background-color: #d81b60; /* צבע ורוד-סגול להסרת פריטים */
+        }
+
+            .remove-btn:hover {
+                background-color: #ad1457;
+            }
+
+        p {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .Total-section p {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            color: #4a0072;
+        }
+
+        a {
+            color: #6a1b9a;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+            a:hover {
+                color: #4a0072;
+            }
+
+    </style>
 </head>
 <body>
     <div class="container">

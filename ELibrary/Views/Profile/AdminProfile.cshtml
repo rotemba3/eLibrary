@@ -134,19 +134,19 @@
                 <input type="text" id="publisher" name="publisher" required />
 
                 <label for="publisherYear">Publisher Year:</label>
-                <input type="date" id="publisherYear" name="publisherYear" required />
+                <input type="date" id="publishYear" name="publishYear" required />
 
                 <label for="genre">Genre:</label>
                 <input type="text" id="genre" name="genre" required />
 
-                <label for="isBuyOnly">Is Buy Only:</label>
+                <label for="isBuyOnly">Is the book buy only?</label>
                 <select id="isBuyOnly" name="isBuyOnly" required>
                     <option value="true">Yes</option>
                     <option value="false">No</option>
                 </select>
 
-                <label for="derip">Derip:</label>
-                <input type="text" id="derip" name="derip" />
+                <label for="derip">Book description:</label>
+                <input type="text" id="desrip" name="desrip" />
 
                 <button type="submit">Add Book</button>
             </form>
@@ -205,7 +205,7 @@
         <section>
             <h2>Manage Book List</h2>
             <form method="post" action="/Admin/UpdateBookList">
-                <label for="updatedList">Updated Book List (JSON):</label>
+                <label for="updatedList">Updated Book List:</label>
                 <textarea id="updatedList" name="updatedList" rows="5" required></textarea>
                 <button type="submit">Update Book List</button>
             </form>
@@ -257,7 +257,7 @@
                 </div>
             }
             <form method="post" action="/Profile/ManageUsers">
-                <label for="username">User name:</label>
+                <label for="username">Username:</label>
                 <input type="text" id="username" name="username" required />
                 <button type="submit">Manage User</button>
             </form>

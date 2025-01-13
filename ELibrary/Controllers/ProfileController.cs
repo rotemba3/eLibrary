@@ -122,7 +122,7 @@ namespace ELibrary.Controllers
             using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-                string sqlQuery = "INSERT INTO Book (ISBN, Title, Authors, Price, PriceDecrease, Cover, Publisher, PublisherYear, Genre, IsBuyOnly, Desrip, AgeLimit, BorrowPrice) VALUES (@ISBN, @Title, @Authors, @Price, @PriceDecrease, @Cover, @Publisher, @PublisherYear, @Genre, @IsBuyOnly, @Desrip, @AgeLimit, @BorrowPrice)";
+                string sqlQuery = "INSERT INTO Book (ISBN, Title, Authors, Price, PriceDecrease, Cover, Publisher, PublishYear, Genre, IsBuyOnly, Desrip, AgeLimit, BorrowPrice) VALUES (@ISBN, @Title, @Authors, @Price, @PriceDecrease, @Cover, @Publisher, @PublishYear, @Genre, @IsBuyOnly, @Desrip, @AgeLimit, @BorrowPrice)";
                 using (SqlCommand commend = new SqlCommand(sqlQuery, connection))
                 {
                     commend.Parameters.AddWithValue("@ISBN", book.ISBN);
@@ -132,7 +132,7 @@ namespace ELibrary.Controllers
                     commend.Parameters.AddWithValue("@PriceDecrease", book.PriceDecrease);
                     commend.Parameters.AddWithValue("@Cover", book.Cover);
                     commend.Parameters.AddWithValue("@Publisher", book.Publisher);
-                    commend.Parameters.AddWithValue("@PublisherYear", book.PublishYear);
+                    commend.Parameters.AddWithValue("@PublishYear", book.PublishYear);
                     commend.Parameters.AddWithValue("@Genre", book.Genre);
                     commend.Parameters.AddWithValue("@IsBuyOnly", book.IsBuyOnly);
                     commend.Parameters.AddWithValue("@Desrip", book.Desrip);
