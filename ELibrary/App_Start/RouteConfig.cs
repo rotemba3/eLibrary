@@ -14,6 +14,11 @@ namespace ELibrary
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
+                name: "Default",
+                url: "{controller}/{action}/{id}",
+                defaults: new { controller = "Home", action = "HomePage", id = UrlParameter.Optional }
+             );
+            routes.MapRoute(
                 name: "Library",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "MainLibrary", action = "GetBooks", id = UrlParameter.Optional }
@@ -23,12 +28,6 @@ namespace ELibrary
                 name: "SearchAutocomplete",
                 url: "Home/SearchAutocomplete",
                 defaults: new { controller = "Home", action = "SearchAutocomplete" }
-            );
-
-            routes.MapRoute(
-                name: "Default",
-                url: "{controller}/{action}/{id}",
-                defaults: new { controller = "Home", action = "HomePage", id = UrlParameter.Optional }
             );
             routes.MapRoute(
                 name: "Sign_Up",

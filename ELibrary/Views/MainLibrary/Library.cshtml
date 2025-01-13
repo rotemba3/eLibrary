@@ -62,6 +62,15 @@
             <h1>Welcome to our library!</h1>
             <h3>Using our site, you can buy and borrow books of your choosing</h3>
         </div>
+
+        <!-- Check for the error message in TempData -->
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert-error">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
         <div class="search-bar">
             <select id="filter-by" class="filter-select">
                 <option value="all">All</option>

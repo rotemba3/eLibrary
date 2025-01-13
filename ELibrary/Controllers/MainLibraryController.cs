@@ -208,6 +208,13 @@ namespace ELibrary.Controllers
             // Retrieve the cart from Session or initialize a new list
             var cartList = Session["CartItems"] as List<Books> ?? new List<Books>();
 
+            if (FindBookFromUserDB(ISBN) != null) 
+            {
+                // Book is already in the library, set an error message and return to the Library page
+                TempData["ErrorMessage"] = "The book is already in your library and cannot be added to the cart.";
+                return RedirectToAction("Library");
+            }
+
             Books book = getBookFromDB(ISBN);
 
             // Add the ISBN to the cart
@@ -227,6 +234,13 @@ namespace ELibrary.Controllers
             var BorrowCartList = Session["BorrowItems"] as List<Books> ?? new List<Books>();
 
             Books book = getBookFromDB(ISBN);
+
+            if (FindBookFromUserDB(ISBN) != null)
+            {
+                // Book is already in the library, set an error message and return to the Library page
+                TempData["ErrorMessage"] = "The book is already in your library and cannot be added to the cart.";
+                return RedirectToAction("Library");
+            }
 
             // Add the ISBN to the cart
             if (!BorrowCartList.Contains(book)) { BorrowCartList.Add(book); }
@@ -357,7 +371,7 @@ namespace ELibrary.Controllers
                     commend.Parameters.AddWithValue("@IsBorrowed", IsBorrow);
                     commend.Parameters.AddWithValue("@TimeBorrowed", DateTime.Now);
 
-                    commend.ExecuteNonQuery();
+                    commend.ExecuteNonQuery();//need to add catch for books that already in db
                     TempData["SuccessMessage"] = "The book was successfully added!";
                 }
                 connection.Close();
@@ -422,12 +436,16 @@ namespace ELibrary.Controllers
             double total = 0;
             foreach (Books book in cartItems) 
             {
-                if (book.PriceDecrease > 0) { total += (book.Price - (book.Price * (book.PriceDecrease * 0.01))); }
+                var tmp = book.Price - (book.Price * (book.PriceDecrease * 0.01));
+                if (tmp < 0) { tmp = 0; }
+                if (book.PriceDecrease > 0) { total += tmp; }
                 else { total += book.Price; }
             }
             foreach (Books book in BorrowItems)
             {
-                if (book.PriceDecrease > 0) { total += (book.BorrowPrice - (book.BorrowPrice * (book.PriceDecrease * 0.01))); }
+                var tmp = book.BorrowPrice - (book.BorrowPrice * (book.PriceDecrease * 0.01));
+                if (tmp < 0) { tmp = 0; }
+                if (book.PriceDecrease > 0) { total += tmp; }
                 else { total += book.BorrowPrice; }
             }
             return total;
@@ -478,6 +496,39 @@ namespace ELibrary.Controllers
             return RedirectToAction("SingleBook", "MainLibrary", new { ISBN });
         }
 
+        public User_Library FindBookFromUserDB(string ISBN) //to check if the book is in the user library
+        {
+            HttpCookie userCookie = Request.Cookies["Username"];
+            User_Library user_Library = null;
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string sqlQuery = "SELECT * FROM User_Library WHERE Username = @Username AND ISBN = @ISBN";
+                using (SqlCommand commend = new SqlCommand(sqlQuery, connection))
+                {
+                    commend.Parameters.AddWithValue("@Username", userCookie.Value);
+                    commend.Parameters.AddWithValue("@ISBN", ISBN);
+                    SqlDataReader reader = commend.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        try
+                        {
+                            user_Library = new User_Library
+                            {
+                                Username = reader.GetString(0),
+                                ISBN = reader.GetString(1),
+                                IsBorrowed = reader.GetBoolean(2),
+                                TimeBorrowed = reader.GetDateTime(3)
+                            };
+                        }
+                        catch (Exception ex) { Console.WriteLine($"Error reading data: {ex.Message}"); }
+                    }
+                    reader.Close();
+                }
+                connection.Close();
+            }
+            return user_Library;
+        }
 
     }
 }
